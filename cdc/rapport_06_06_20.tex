@@ -1,0 +1,204 @@
+%default packages
+\documentclass[a4paper, 12pt]{report}
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhf{}
+\rfoot{\thepage}
+\lfoot{Louka Doz \& Thibault Meynier}
+
+
+%adds the ability to put images and figures in the document
+\usepackage{graphicx}
+
+%sets default font
+\usepackage[T1]{fontenc}
+
+%sets document langage to french
+\usepackage[french]{babel}
+
+%adds landscape page orientation
+\usepackage{lscape}
+
+%adds easier chapter styles customization
+\usepackage{titlesec}
+
+%adds ssmal and HUGE font size
+\usepackage[12pt]{moresize}
+
+%for custom list style
+\usepackage{enumitem}
+
+%adds links and hyperlinks
+\usepackage{hyperref}
+
+%for extra colors
+\usepackage[dvipsnames]{xcolor}
+
+%for better tables
+\usepackage{array}
+
+%for bigger tables
+\usepackage{longtable}
+
+\usepackage{helvet}
+
+\usepackage{tabularx}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+
+
+%changes default lists style for smaller dashes
+\setlist[itemize]{label=--}
+
+%changes the display of chapters, 
+%do not displays : "chapter n : name_of_the_chapter"
+%displays : "n. name_of_the_chapter" instead
+\makeatletter
+\def\@makechapterhead#1{%
+	\vspace*{0\p@}%
+	{	\parindent \z@ \raggedright \normalfont
+		\ifnum \c@secnumdepth >\m@ne
+		  %\if@mainmatter
+		    %\huge\bfseries \@chapapp\space \thechapter
+		    \huge\bfseries \thechapter.\space%
+		    %\par\nobreak
+		    %\vskip 20\p@
+		  %\fi
+		\fi
+		\interlinepenalty\@M
+		\huge \bfseries #1\par\nobreak
+		\vskip 40\p@
+	}}
+\makeatother
+
+
+%adds infos to the document
+\title{}
+
+\author{
+	Louka Doz
+	\and 
+	Thibault Meynier
+}
+\date{\raggedleft \today}
+
+
+\hypersetup{
+	colorlinks=true,
+	linkcolor={BlueViolet},
+	filecolor=magenta,
+	urlcolor={MidnightBlue}
+}
+
+
+%starts to write the document
+\begin{document}
+	\makeatletter
+	\begin{titlepage}
+
+		\begin{flushleft}
+			\begin{minipage}{4cm}
+				\includegraphics[height=4cm]{img/logo_iut}
+			\end{minipage}
+			\hfill
+			\begin{minipage}{5cm}
+				\begin{flushright}
+		        	\small IUT Sénart-Fonatinebleau\\
+		        	département informatique\\
+		        	Route forestière Hurtault\\
+		        	77300 Fontainebleau\\
+				\end{flushright}
+			\end{minipage}
+		\end{flushleft}
+
+		\vfill
+
+		\begin{center}
+	        \vspace*{3cm}%
+	        {\HUGE Ubistock}\\[0.5cm]
+	        {\huge Rapport d'avancement hebdomadaire}\\[0.5cm]
+	        {\Large \today}\\[0.5cm]
+	        {\Large semaine du 30/06/20 au 06/06/20}\\[0.5cm]
+        	{\large \textit{Année scolaire 2019-2020}}\\[1cm]
+	    \end{center}
+	    \vfill
+        \begin{raggedright}
+	        \begin{description}
+	        	\item[\large \underline{Tutrice de projet :}] \large \textbf{Régine Laleau}\\[1cm]
+	        	\item[\underline{Par :}] 
+		        	\begin{itemize}
+			        		\item Louka Doz
+			        		\item Thibault Meynier
+			        \end{itemize}
+	        \end{description}
+        \end{raggedright}        
+	    \let\newpage\relax% Avoid following page break
+	\end{titlepage}
+	\makeatother
+
+
+	%prints a formated table of contents
+	\tableofcontents
+
+	%jumps a page
+
+	\newpage
+
+	\chapter*{Synthèse}
+		Durant cette semaine, l’équipe projet a réalisé bon nombre de script en vue d’une implémentation graphique future. On peut donc déjà effectuer presque toutes les opérations du cahier des charges via des requêtes à l’api php. L’équipe projet a donc pour objectif de passer à la phase deux de développement, c’est-à-dire la mise en place d’une interface graphique afin d’améliorer l’ergonomie de l’application.
+
+
+	 \chapter{Nouvelles implémentations}
+		\section{Base de données}
+			\begin{itemize}
+				\item implémentation du nouveau mécanisme des permissions;
+				\item implémentation du nouveau système de groupes.
+			\end{itemize}
+
+		\section{API}
+			\begin{itemize}
+				\item création d’entreprises;
+				\item ajout/suppression/renommage de stockages;
+				\item ajout/suppression/renommage de ressources;
+				\item création/suppression d’utilisateurs;
+				\item création/suppression de groupes;
+				\item assignation/désassignation d’utilisateurs à des groupes;
+				\item assignation/désassignation de stockages à des groupes;
+				\item déplacement de stockages;
+				\item déplacement des ressources;
+				\item changement du niveau d’accréditation des utilisateurs;
+				\item changement de la quantité d’une ressource;
+				\item connexion des utilisateurs.
+			\end{itemize}
+
+		\section{Interface}
+			\begin{itemize}
+				\item page de connexion;
+				\item page de création de compte;
+				\item page de création d’un nouvel utilisateur;
+				\item page de création d’un nouveau groupe.
+			\end{itemize}
+
+	\chapter{Changements et ajouts}			
+		\section{Nom et prénom des utilisateurs}
+			Afin de rajouter un côté professionnel à l’application, le nom d’utilisateur à été remplacés par deux champs : le nom et le prénom de l’utilisateur.
+
+		\section{Email}
+			Pour faciliter la connexion des utilisateurs, un nouveau champ pour un email à été ajouté à la base de données. Cet email sera aussi utile à l’avenir, pour contacter un utilisateur de manière personnelle (pour confirmer des actions par exemple).
+
+		\section{Messages de retout de l'API}
+			Durant cette semaine, l’équipe s’est accordé sur le retour des messages suite à une requête vers l’API. Les messages retournés seront composés du minimum d’informations nécessaires pour faire tourner et  mettre à jour le client.
+
+
+		\section{Fonction REGEXP}
+    		Dans le cadre du développement de la fonctionnalité permettant de déplacer un stockage dans un autre, l’équipe a souhaité utiliser une fonctionnalité de l’api sqlite permettant de créer ses propres fonctions afin de rendre possible l’utilisation d’expressions régulières dans les requêtes SQL passées à la base de données.
+
+    \chapter{Objectif de la prochaine semaine}
+    	\begin{itemize}
+    		\item réaliser des scripts permettant la compatibilité avec les bases de données MySQL;
+    		\item continuer de développer l'interface;
+    		\item terminer l'ensemble des scripts php.
+    	\end{itemize}
+		
+\end{document}

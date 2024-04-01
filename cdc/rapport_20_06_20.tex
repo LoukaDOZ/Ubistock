@@ -1,0 +1,208 @@
+%default packages
+\documentclass[a4paper, 12pt]{report}
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhf{}
+\rfoot{\thepage}
+\lfoot{Louka Doz \& Thibault Meynier}
+
+
+%adds the ability to put images and figures in the document
+\usepackage{graphicx}
+
+%sets default font
+\usepackage[T1]{fontenc}
+
+%sets document langage to french
+\usepackage[french]{babel}
+
+%adds landscape page orientation
+\usepackage{lscape}
+
+%adds easier chapter styles customization
+\usepackage{titlesec}
+
+%adds ssmal and HUGE font size
+\usepackage[12pt]{moresize}
+
+%for custom list style
+\usepackage{enumitem}
+
+%adds links and hyperlinks
+\usepackage{hyperref}
+
+%for extra colors
+\usepackage[dvipsnames]{xcolor}
+
+%for better tables
+\usepackage{array}
+
+%for bigger tables
+\usepackage{longtable}
+
+\usepackage{helvet}
+
+\usepackage{tabularx}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+
+
+%changes default lists style for smaller dashes
+\setlist[itemize]{label=--}
+
+%changes the display of chapters, 
+%do not displays : "chapter n : name_of_the_chapter"
+%displays : "n. name_of_the_chapter" instead
+\makeatletter
+\def\@makechapterhead#1{%
+	\vspace*{0\p@}%
+	{	\parindent \z@ \raggedright \normalfont
+		\ifnum \c@secnumdepth >\m@ne
+		  %\if@mainmatter
+		    %\huge\bfseries \@chapapp\space \thechapter
+		    \huge\bfseries \thechapter.\space%
+		    %\par\nobreak
+		    %\vskip 20\p@
+		  %\fi
+		\fi
+		\interlinepenalty\@M
+		\huge \bfseries #1\par\nobreak
+		\vskip 40\p@
+	}}
+\makeatother
+
+
+%adds infos to the document
+\title{}
+
+\author{
+	Louka Doz
+	\and 
+	Thibault Meynier
+}
+\date{\raggedleft \today}
+
+
+\hypersetup{
+	colorlinks=true,
+	linkcolor={BlueViolet},
+	filecolor=magenta,
+	urlcolor={MidnightBlue}
+}
+
+
+%starts to write the document
+\begin{document}
+	\makeatletter
+	\begin{titlepage}
+
+		\begin{flushleft}
+			\begin{minipage}{4cm}
+				\includegraphics[height=4cm]{img/logo_iut}
+			\end{minipage}
+			\hfill
+			\begin{minipage}{5cm}
+				\begin{flushright}
+		        	\small IUT Sénart-Fonatinebleau\\
+		        	département informatique\\
+		        	Route forestière Hurtault\\
+		        	77300 Fontainebleau\\
+				\end{flushright}
+			\end{minipage}
+		\end{flushleft}
+
+		\vfill
+
+		\begin{center}
+	        \vspace*{3cm}%
+	        {\HUGE Ubistock}\\[0.5cm]
+	        {\huge Rapport d'avancement hebdomadaire}\\[0.5cm]
+	        {\Large semaine du 13-06-2020 au 20-06-2020}\\[0.5cm]
+        	{\large \textit{Année scolaire 2019-2020}}\\[1cm]
+	    \end{center}
+	    \vfill
+        \begin{raggedright}
+	        \begin{description}
+	        	\item[\large \underline{Tutrice de projet :}] \large \textbf{Régine Laleau}\\[1cm]
+	        	\item[\underline{Par :}] 
+		        	\begin{itemize}
+			        		\item Louka Doz
+			        		\item Thibault Meynier
+			        \end{itemize}
+	        \end{description}
+        \end{raggedright}        
+	    \let\newpage\relax% Avoid following page break
+	\end{titlepage}
+	\makeatother
+
+
+	%prints a formated table of contents
+	\tableofcontents
+
+	%jumps a page
+
+	\newpage
+
+	\chapter*{Synthèse}
+		Durant cette semaine, l’équipe projet a réalisé de nouveaux scripts back-end afin de faciliter le développement front-end et faciliter la récupération d’informations. Les fonctions front-end permettant de dialoguer avec l’API ont également été terminées. L’équipe a imaginé et mis en place un nouveau système de connexion plus sûr permettant de ne maintenir une session avec un même utilisateur que 2h avant de le déconnecter.
+
+
+
+	 \chapter{Nouvelles implémentations}
+	 	\section{Base de données}
+	 		\begin{itemize}
+	 			\item implémentation du nouveau mécanisme de toen de connexion;
+				\item création de la table token.
+
+	 		\end{itemize}
+
+		\section{API}
+			\begin{itemize}
+				\item demander la liste des logs;
+				\item demander la liste des groupes de l’utilisateur;
+				\item demander la liste des stockages autorisés de l’utilisateur;
+				\item demander des informations sur l’entreprise de l’utilisateur.
+
+
+			\end{itemize}
+
+		\section{Interface}
+			\begin{itemize}
+				\item page des groupes;
+				\item corrections d’erreurs et mise à jour pour plus de clarté;
+				\item implémentation d’une partie des requêtes AJAX.
+
+
+			\end{itemize}
+
+	\chapter{Changements et ajouts}
+		\section{Améliorer l’expérience utilisateur}
+			Après avoir terminé de réaliser le prototype des pages, beaucoups de petits changements ont eu lieu pour améliorer l’interface utilisateur ainsi que pour résoudre des problèmes :
+			\begin{itemize}
+				\item limiter le nombre de fenêtres modales;
+				\item utiliser les mêmes mots entre les pages plutôt que des synonymes pour plus de cohérence;
+				\item corrections d’éléments qui n’étaient pas responsive;
+				\item affichages des droits des utilisateurs en fonction du niveau d’accréditation plus visuel afin de bien montrer la différence entre deux niveaux d’accréditation.
+
+			\end{itemize}
+
+		\section{Token de connexion}
+			Désormais, lorsqu’un utilisateur se connecte, un token de connexion est créé contenant son company\_user\_id, un id unique de 32 caractères de long ainsi qu’une date de création. Pour effectuer une action, l’utilisateur envoie maintenant le token\_id et son company\_user\_id pour s’identifier. Si le token est trop vieux (créé il y a plus de 2 heures), la connexion est refusée et l’utilisateur doit se reconnecter. Lors de chaque connexion, les tokens d’il y a plus de 2 heures sont supprimés de la base de données.
+
+		\section{Report du support MySQL}
+			L’équipe a finalement décidé de ne pas supporter les bases de données MySQL pour le moment car l’implémentation des fonctionnalités permettant une telle compatibilité ralentit considérablement le développement de l’application.
+
+		\section{Fuseion du travail}
+			En fusionnant le travail des deux membres de l’équipe (interface et requêtes vers l’API), le groupe a rencontré de nombreux problèmes, forçant à faire des modifications sur leur serveur local respectif et à modifier et ajouter de nouvelles fonctions réalisant des requêtes AJAX. Régler ces problèmes à pris plus de temps que prévu ce qui a retardé l’implémentation des requêtes AJAX pourtant commencé à temps.
+
+
+	\chapter{objectifs de la prochaine semaine}
+		\begin{itemize}
+			\item finir l’ajout des requêtes vers l’API dans les pages existantes;
+			\item finir le système de fichiers permettant de gérer les ressources et stockages;
+			\item finir le générateur de PDF.
+
+		\end{itemize}
+		
+\end{document}

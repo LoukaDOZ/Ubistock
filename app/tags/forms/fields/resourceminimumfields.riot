@@ -1,0 +1,47 @@
+<!-- Resource minimum fields -->
+<resourceminimumfields check="{ check }" getValues="{ getValues }">
+
+    <!-- Minimum -->
+    <numberinput eid="resource-minimum" name="resource-minimum" label="Minimum quantity" min="1"
+                 value="{ props.values ? props.values.minimum : '' }" required="{ true }"/>
+    <inputerrormsg show="{ !formValidation.minimum}" value="Required field"/>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Inputs' validation
+            formValidation: {
+                minimum: true
+            },
+            //When tag is mounted
+            onMounted() {
+                //Get inputs
+                this.minimumTag = this.$('#resource-minimum');
+            },
+            //Check inputs' values
+            check() {
+                //Get inputs' values
+                let minimum = this.minimumTag.value;
+
+                //Check inputs' values
+                this.formValidation.minimum = (minimum);
+
+                //Show or hide input errors
+                this.update();
+                //Returning false if at least one input isn't valid
+                for(let validation of Object.values(this.formValidation))
+                    if(!validation)
+                        return false;
+
+                //All inputs are valid
+                return true;
+            },
+            //Return inputs values
+            getValues() {
+                return {
+                    'minimum': parseInt(this.minimumTag.value)
+                };
+            }
+        }
+    </script>
+</resourceminimumfields>

@@ -1,0 +1,116 @@
+<!-- Add user -->
+<newuserpage>
+    <div class="container px-5 py-3">
+        <!-- Back to members page button -->
+        <button type="button" class="btn btn-primary mb-3" onclick="{ props.changepage(CONSTANTS.MEMBERS_PAGE) }">
+            Back to members page
+        </button>
+
+        <!-- Add user form -->
+        <form class="form-group" onsubmit="{ onSubmit }">
+            <div class="mb-3">
+                <span class="text-primary">*</span> required fields
+            </div>
+            <!-- Add user error -->
+            <errormsg show="{ error }" value="An error has occurred : { error }. Please, try again."/>
+
+            <!-- Title -->
+            <h2 class="alert alert-dark mb-0">Add a new member account</h2>
+
+            <!-- Fields -->
+            <userfields/>
+
+            <h2 class="alert alert-dark mt-5 mb-0">Set rights level</h2>
+            <rightsfields min="{ CONSTANTS.VISITOR }" max="{ props.rights + 1 }" values="{ { rights: rightsSelected } }" changetrigger="{ onRightsChange }"/>
+
+            <h2 class="alert alert-dark mt-5 mb-0">Bind to group(s)</h2>
+            <usergroupfields if="{ rightsSelected > CONSTANTS.ADMIN }" byid="{ props.byid }" allowadd="{ true }"/>
+            <div if="{ rightsSelected === CONSTANTS.ADMIN }" class="alert alert-info mt-3">
+                Administrators automatically belong to every groups
+            </div>
+
+            <!-- Submit button -->
+            <div class="container-fluid d-flex justify-content-center align-items-center my-3">
+                <button type="submit" class="btn btn-primary">Add user</button>
+            </div>
+
+            <!-- Add user error -->
+            <errormsg show="{ error }" value="An error has occurred : { error }. Please, try again."/>
+        </form>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Rights level selected
+            rightsSelected: CONSTANTS.VISITOR,
+            //Add user error
+            error: "",
+            //Rights level change
+            onRightsChange(newRights) {
+                //Set new rights level
+                this.rightsSelected = newRights;
+                this.update();
+            },
+            //Submit add user
+            onSubmit(e) {
+                e.preventDefault();
+                //Get fields
+                let userFields = this.$('userfields');
+                let rightsFields = this.$('rightsfields');
+                let userGroupFields = this.$('usergroupfields');
+
+                //Check fields
+                if(userFields.check() && rightsFields.check()
+                    && (this.rightsSelected <= CONSTANTS.ADMIN || userGroupFields.check())) {
+                    //Add user
+                    this.addUser(userFields.getValues(),
+                        rightsFields.getValues(),
+                        (this.rightsSelected > CONSTANTS.ADMIN ? userGroupFields.getValues() : null));
+                }
+            },
+            //Add user
+            async addUser(userValues,rightsValues,userGroupValues) {
+                //Requesting
+                let res = await makeServiceAjax().createUser(
+                    userValues['first-name'],
+                    userValues['last-name'],
+                    userValues.email,
+                    userValues.password,
+                    rightsValues.rights
+                );
+
+                if(res.worked) {
+                    //If worked
+                    this.error = "";
+
+                    if(userGroupValues) {
+                        //Each group to which ones user is to bind
+                        for (let i of userGroupValues.groups) {
+                            //Requesting
+                            let res2 = await makeServiceAjax().toggleUserGroup(
+                                res.content['company_user_id'],
+                                i['company_group_id']);
+
+                            if (res2.worked) {
+                                //If worked
+                                this.error = "";
+                                this.props.changepage(CONSTANTS.MEMBERS_PAGE,true);
+                            } else {
+                                //If didn't work
+                                this.error = res2.content;
+                                this.update();
+                                return;
+                            }
+                        }
+                    }
+
+                } else {
+                    //If didn't work
+                    this.error = res.content;
+                    this.update();
+                }
+            }
+        }
+    </script>
+</newuserpage>

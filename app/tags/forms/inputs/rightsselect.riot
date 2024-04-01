@@ -1,0 +1,64 @@
+<!-- Select for rights level -->
+<rightsselect>
+    <!-- Label -->
+    <label if="{ props.label }" for="{ props.eid }" class="mt-3">{ props.label }
+        <span if="{ props.required }" class="text-primary"> *</span>
+    </label>
+
+    <!-- Select -->
+    <select id="{ props.eid }" name="{ props.name }" class="custom-select" onchange="{ onRightChange }">
+        <option if="{ props.min >= CONSTANTS.SUPER_ADMIN && props.max <= CONSTANTS.SUPER_ADMIN }" value="{ CONSTANTS.SUPER_ADMIN }" selected="{ rightLevel === CONSTANTS.SUPER_ADMIN }">
+            { CONSTANTS.rightsToString(CONSTANTS.SUPER_ADMIN) }
+        </option>
+        <option if="{ props.min >= CONSTANTS.ADMIN && props.max <= CONSTANTS.ADMIN }" value="{ CONSTANTS.ADMIN }" selected="{ rightLevel === CONSTANTS.ADMIN }">
+            { CONSTANTS.rightsToString(CONSTANTS.ADMIN) }
+        </option>
+        <option if="{ props.min >= CONSTANTS.MODERATOR && props.max <= CONSTANTS.MODERATOR }" value="{ CONSTANTS.MODERATOR }" selected="{ rightLevel === CONSTANTS.MODERATOR }">
+            { CONSTANTS.rightsToString(CONSTANTS.MODERATOR) }
+        </option>
+        <option if="{ props.min >= CONSTANTS.COLLABORATOR && props.max <= CONSTANTS.COLLABORATOR }" value="{ CONSTANTS.COLLABORATOR }" selected="{ rightLevel === CONSTANTS.COLLABORATOR }">
+            { CONSTANTS.rightsToString(CONSTANTS.COLLABORATOR) }
+        </option>
+        <option if="{ props.min >= CONSTANTS.VISITOR && props.max <= CONSTANTS.VISITOR }" value="{ CONSTANTS.VISITOR }" selected="{ rightLevel === CONSTANTS.VISITOR }">
+            { CONSTANTS.rightsToString(CONSTANTS.VISITOR) }
+        </option>
+    </select>
+
+    <!-- Select right information -->
+    <div class="mt-4 mb-2">
+        <rightsinfo rights="{ rightLevel || props.value }"/>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Select right
+            rightLevel: null,
+            //When tag is mounted
+            onMounted() {
+                this.update();
+            },
+            //Before tag updates
+            onBeforeUpdate() {
+                if(this.props.value && (this.props.value <= this.props.min) && (this.props.value >= this.props.max))
+                    //Select right equals the given value if it is superior to the minimum and inferior to the maximum
+                    this.rightLevel = this.props.value;
+                else
+                    //Else, select right is set to the minimum
+                    this.rightLevel = this.props.min;
+            },
+            //When new right selected
+            onRightChange(e) {
+                e.preventDefault();
+                //Set new right selected
+                this.rightLevel = parseInt(e.target.value);
+
+                if(this.props.changetrigger)
+                    //If needed, tells to parent that right changed
+                    this.props.changetrigger(this.rightLevel);
+
+                this.update();
+            },
+        }
+    </script>
+</rightsselect>

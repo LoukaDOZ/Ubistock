@@ -1,0 +1,234 @@
+<!-- Logs -->
+<logspage>
+    <!-- Title -->
+    <div class="container px-5 pb-0 pt-3 my-0">
+        <h2 class="alert alert-dark d-flex flex-wrap justify-content-between align-items-center }">
+            Logs
+
+            <!-- Refresh button -->
+            <button type="button" class="btn btn-outline-dark" onclick="{ getLogs }">
+                <svg class="bi bi-arrow-clockwise" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M3.17 6.706a5 5 0 0 1 7.103-3.16.5.5 0 1 0 .454-.892A6 6 0 1 0 13.455 5.5a.5.5 0 0 0-.91.417 5 5 0 1 1-9.375.789z"/>
+                    <path fill-rule="evenodd" d="M8.147.146a.5.5 0 0 1 .707 0l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5a.5.5 0 1 1-.707-.708L10.293 3 8.147.854a.5.5 0 0 1 0-.708z"/>
+                </svg>
+                Refresh
+            </button>
+        </h2>
+
+        <!-- Load content error -->
+        <errormsg show="{ error }" value="An error has occurred while loading the page : { error }. Please, try again."/>
+    </div>
+
+    <!-- Content -->
+    <div if="{ !error }" class="container px-5 pb-3 pt-0">
+        <!-- Filters -->
+        <div class="form-group alert alert-info text-dark">
+            <div class="row">
+                <!-- Sort -->
+                <div class="col-sm-12 col-md-6 my-2">
+                    <label for="sort-by">Sort by</label>
+                    <select id="sort-by" class="custom-select" onchange="{ onSortChange }">
+                        <option value="date" selected>Date</option>
+                        <option value="importance">Importance</option>
+                    </select>
+                </div>
+
+                <!-- Search an id -->
+                <form class="col-sm-12 col-md-6 my-2">
+                    <label for="search">Search</label>
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <div class="input-group-text">
+                                n°
+                            </div>
+                        </div>
+                        <input id="search" class="form-control border-right-0" type="text" value="{ search }" name="search" placeholder="Search here" oninput="{ onSearchChange }"/>
+                        <div class="input-group-append">
+                            <!-- Reset search -->
+                            <button type="reset" class="input-group-text bg-white" onclick="{ resetSearch }">
+                                &times;
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Show more logs -->
+        <button type="button" class="container-fluid btn btn-secondary" onclick="{ moreLogs }">
+            <span>+ Show { this.limit } more logs</span><br>
+            <small>{ sortedInfos.length } currently shown | { infos.length } currently got</small>
+        </button>
+
+        <!-- Logs list -->
+        <ul class="list-group border-top border-dark rounded-0 mt-3 pt-3">
+            <!-- Each log -->
+            <li class="list-group-item p-0" each="{ log in sortedInfos }">
+                <loginfo log="{ log }" togglehandler="{ onToggle(log) }"/>
+            </li>
+        </ul>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Sort
+            sortBy: 'date',
+            //Search
+            search: "",
+            //Information
+            infos: [],
+            //Sorted information
+            sortedInfos: [],
+            //Load content error
+            error: "",
+            //Don't request again
+            alreadyRequested: false,
+            //Current offset
+            offset: 0,
+            //Current limit
+            limit: 10,
+            //When tag is mounted
+            onMounted() {
+                //Get information
+                this.getLogs();
+            },
+            //Before tag updates
+            onBeforeUpdate() {
+                if(!this.alreadyRequested)
+                    //Get infromation if request needed
+                    this.getLogs();
+                else {
+                    this.alreadyRequested = false;
+
+                    //Prepare to sort
+                    this.sortedInfos = [];
+                    this.search = this.search.toLowerCase();
+
+                    if (this.search) {
+                        //Keep all logs which the name contains the search value
+                        for (let i of this.infos) {
+                            if (i['company_log_id'].toLowerCase().indexOf(this.search) >= 0)
+                                this.sortedInfos.push(i);
+                        }
+                    } else {
+                        //Keep all if the search value is empty
+                        this.sortedInfos = Array.from(this.infos);
+                    }
+
+                    //Sort kept logs by date or importance
+                    switch (this.sortBy) {
+                        case "date":
+                            this.sortedInfos.sort(function (a, b) {
+                                return b.date.getTime() - a.date.getTime();
+                            });
+                            break;
+
+                        case "importance":
+                            this.sortedInfos.sort(function (a, b) {
+                                return a.priority - b.priority;
+                            });
+                            break;
+                    }
+                }
+            },
+            //Toggle log
+            onToggle(log) {
+                return (e)=>{
+                    e.preventDefault();
+
+                    //Each log
+                    for(let i of this.infos) {
+                        if(i['company_log_id'] === log['company_log_id'])
+                            //Toggle if same log
+                            i.toggle = !i.toggle;
+                        else
+                            //Close to always let one log open maximum
+                            i.toggle = false;
+                    }
+
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                };
+            },
+            //Sort change
+            onSortChange(e) {
+                e.preventDefault();
+                //Set new sort
+                this.sortBy = e.target.value;
+                //Don't request again
+                this.alreadyRequested = true;
+                this.update();
+            },
+            //Search change
+            onSearchChange(e) {
+                e.preventDefault();
+                //Set new search
+                this.search = e.target.value;
+                //Don't request again
+                this.alreadyRequested = true;
+                this.update();
+            },
+            //Reset search
+            resetSearch(e) {
+                //Unset search
+                this.search = "";
+                //Don't request again
+                this.alreadyRequested = true;
+                this.update();
+            },
+            //Show more logs
+            moreLogs(e) {
+                e.preventDefault();
+                //Increase offset
+                this.offset += this.limit;
+                //Need request
+                this.alreadyRequested = false;
+                this.update();
+            },
+            //Get information
+            async getLogs(e) {
+                if(e) e.preventDefault();
+
+                //Requesting
+                let res = await makeServiceAjax().getLogs(this.offset,this.limit);
+
+                if(res.worked) {
+                    //If worked
+                    this.error = "";
+                    let previousInfos = Array.from(this.infos);
+                    this.infos = this.infos.concat(Object.values(res.content));
+
+                    //Set the toggle value state for logs
+                    for(let i of this.infos) {
+                        i.toggle = false;
+
+                        //Set the same toggle value as before
+                        for(let j of previousInfos) {
+                            if (i['company_log_id'] === j['company_log_id'])
+                                i.toggle = j.toggle;
+                        }
+
+                        //Convert date to JavaScript object from (JJ-MM-YYYY HH-MM-SS)
+                        if((typeof i.date) === "string") {
+                            let values = i.date.replace(" ", "-").split(/-/);
+                            i.date = new Date(values[2], values[1], values[0], values[3], values[4], values[5]);
+                        }
+                    }
+
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                } else {
+                    //If didn't work
+                    this.infos = [];
+                    this.error = res.content;
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                }
+            }
+        }
+    </script>
+</logspage>

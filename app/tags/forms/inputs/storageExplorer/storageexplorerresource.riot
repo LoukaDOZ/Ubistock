@@ -1,0 +1,20 @@
+<!-- Resource display for storage explorer -->
+<storageexplorerresource>
+    <!-- Display -->
+    <div class="py-2 stock-element text-break text-wrap d-flex justify-content-start align-items-center rounded"
+         style=" margin-left: { props.margin + 1 }em;">
+        <!-- Image from type -->
+        <img src="../assets/images/{ CONSTANTS.resourceTypeToImageName(props.resource['resource_type']) }"
+             class="mx-2" alt="resource" draggable="false" style="width: 1.5em; height: 1.5em;">
+        <!-- Name -->
+        <span>
+            { props.resource['resource_name'] }
+        </span>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS
+        }
+    </script>
+</storageexplorerresource>

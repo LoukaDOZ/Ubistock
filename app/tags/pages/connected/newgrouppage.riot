@@ -1,0 +1,86 @@
+<!-- Add group  -->
+<newgrouppage>
+    <div class="container px-5 py-3">
+        <!-- BAck to group page button -->
+        <button type="button" class="btn btn-primary mb-3" onclick="{ props.changepage(CONSTANTS.GROUPS_PAGE) }">
+            Back to groups page
+        </button>
+
+        <!-- Add group form -->
+        <form class="form-group" onsubmit="{ onSubmit }">
+            <div class="mb-3">
+                <span class="text-primary">*</span> required fields
+            </div>
+            <!-- Add group error -->
+            <errormsg show="{ error }" value="An error has occurred : { error }. Please, try again."/>
+
+            <!-- Title -->
+            <h2 class="alert alert-dark mb-0">Add a new group</h2>
+
+            <!-- Fields -->
+            <groupfields/>
+
+            <!-- Submit button -->
+            <div class="container-fluid d-flex justify-content-center align-items-center mt-3">
+                <button type="submit" class="btn btn-primary">Add group</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Add group error
+            error: "",
+            //Submit add group
+            onSubmit(e) {
+                e.preventDefault();
+                //Get fields
+                let groupFields = this.$('groupfields');
+
+                //Check fields
+                if(groupFields.check()) {
+                    //Add group
+                    this.addNewGroup(groupFields.getValues());
+                }
+            },
+            //Add group
+            async addNewGroup(groupValues) {
+                //Requesting
+                let res = await makeServiceAjax().createGroup(
+                    groupValues.name
+                );
+
+                if(res.worked) {
+                    //If worked
+                    this.error = "";
+
+                    if(groupValues) {
+                        //Each storage to bind to the group
+                        for (let i of groupValues.storage) {
+                            //Requesting
+                            let res2 = await makeServiceAjax().toggleStorageGroup(
+                                i['storage_id'],
+                                res.content['company_group_id']);
+
+                            if (res2.worked) {
+                                //If worked
+                                this.error = "";
+                                this.props.changepage(CONSTANTS.GROUPS_PAGE,true);
+                            } else {
+                                //If didn't work
+                                this.error = res2.content;
+                                this.update();
+                                return;
+                            }
+                        }
+                    }
+                } else {
+                    //If didn't work
+                    this.error = res.content;
+                    this.update();
+                }
+            }
+        }
+    </script>
+</newgrouppage>

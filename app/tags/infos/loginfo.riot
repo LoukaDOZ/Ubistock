@@ -1,0 +1,478 @@
+<!-- Log information -->
+<loginfo>
+    <!-- Information -->
+    <div class="{ props.log.toggle ? 'border border-secondary rounded' : '' }">
+        <div class="row m-0 card-header" onclick="{ props.togglehandler }" style="cursor: pointer;">
+            <div class="col-9 col-sm-10 col-lg-11">
+                <div class="row">
+                    <!-- Id -->
+                    <div class="col">
+                        n° { props.log['company_log_id'] }
+                    </div>
+                    <!-- Date -->
+                    <div class="col">
+                        { props.log.date.toLocaleString() }
+                    </div>
+                    <!-- Action made and importance -->
+                    <div class="col">
+                        { CONSTANTS.actionToString(props.log.action) }
+                        <div class="badge badge-pill ml-2 { parseInt(props.log.priority) < 4 ? 'badge-danger' : '' }
+                                        { parseInt(props.log.priority) >= 4 && parseInt(props.log.priority) <= 7 ? 'badge-warning' : '' }
+                                        { parseInt(props.log.priority) > 7 ? 'badge-success' : '' }">
+                            { props.log.priority }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Closed/Opened icon -->
+            <div class="col-3 col-sm-2 col-lg-1 d-flex justify-content-center align-items-center">
+                <!-- Closed -->
+                <svg if="{ !props.log.toggle }" class="bi bi-caret-down-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                </svg>
+                <!-- Opened -->
+                <svg if="{ props.log.toggle }" class="bi bi-caret-up-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Body. Shown when toggle is true -->
+        <div id="collapse-log-{ props.log['company_log_id'] }" class="container-fluid mt-3 collapse">
+
+            <!-- Loading target or initiator information error -->
+            <errormsg show="{ targetError || userError }" value="An error has occurred while loading the { userError ? 'initiator' : 'target' } information : { targetError }. Please, try again."/>
+
+            <div class="table-responsive rounded" if="{ targetInfos }">
+                <table class="table table-bordered table-hover">
+                    <tbody>
+                        <!-- Initiator -->
+                        <tr class="thead-dark">
+                            <th colspan="2" class="text-center">
+                                initiator
+                            </th>
+                        </tr>
+                        <!-- Loading initiator information error -->
+                        <tr if="{ userError }">
+                            <th colspan="2" class="text-center alert alert-danger m-0 rounded-0 font-weight-normal">
+                                An error has occurred while loading the information. The initiator was probably delete. Only few information can be shown.
+                            </th>
+                        </tr>
+                        <!-- Name -->
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <td>
+                                { userInfos ? userInfos['company_user_name'] : '' }
+                            </td>
+                        </tr>
+                        <!-- Email -->
+                        <tr>
+                            <th>
+                                Email
+                            </th>
+                            <td>
+                                { userInfos ? userInfos.email : '' }
+                            </td>
+                        </tr>
+                        <!-- Rights level -->
+                        <tr>
+                            <th>
+                                Rights
+                            </th>
+                            <td>
+                                { userInfos ? CONSTANTS.rightsToString(userInfos['accreditation_level']) : '' }
+                            </td>
+                        </tr>
+
+                        <!-- Action -->
+                        <tr class="thead-dark">
+                            <th colspan="2" class="text-center">
+                                Action
+                            </th>
+                        </tr>
+                        <!-- Action name -->
+                        <tr>
+                            <th>
+                                Action
+                            </th>
+                            <td>
+                                { CONSTANTS.actionToString(props.log.action) }
+                            </td>
+                        </tr>
+                        <!-- Quantity -->
+                        <tr>
+                            <th>
+                                Quantity
+                            </th>
+                            <td>
+                                { props.log.quantity }
+                            </td>
+                        </tr>
+                        <!-- Date -->
+                        <tr>
+                            <th>
+                                Date
+                            </th>
+                            <td>
+                                { props.log.date.toLocaleString() }
+                            </td>
+                        </tr>
+                        <!-- Importance -->
+                        <tr>
+                            <th>
+                                Importance
+                            </th>
+                            <td>
+                                <div class="badge badge-pill { parseInt(props.log.priority) < 4 ? 'badge-danger' : '' }
+                                            { parseInt(props.log.priority) >= 4 && parseInt(props.log.priority) <= 7 ? 'badge-warning' : '' }
+                                            { parseInt(props.log.priority) > 7 ? 'badge-success' : '' }">
+                                    { props.log.priority }
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Reason -->
+                        <tr>
+                            <th>
+                                Reason
+                            </th>
+                            <td>
+                                { props.log.reason || "None" }
+                            </td>
+                        </tr>
+
+                        <!-- Target -->
+                        <tr class="thead-dark">
+                            <th colspan="2" class="text-center">
+                                Target
+                            </th>
+                        </tr>
+                        <!-- Loading target information error -->
+                        <tr if="{ targetError }">
+                            <th colspan="2" class="text-center alert alert-danger m-0 rounded-0 font-weight-normal">
+                                An error has occurred while loading the information. The target was probably delete. Only few information can be shown.
+                            </th>
+                        </tr>
+                    <!-- If target is company -->
+                    <tbody if="{ targetType === CONSTANTS.COMPANY_TARGET }">
+                        <tr class="thead-light">
+                            <th colspan="2" class="text-center">
+                                Company
+                            </th>
+                        </tr>
+                        <!-- Name -->
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <td>
+                                { targetInfos['company_name'] }
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!-- If target is resource -->
+                    <tbody if="{ targetType === CONSTANTS.RESOURCE_TARGET }">
+                        <tr class="thead-light">
+                            <th colspan="2" class="text-center">
+                                Resource
+                            </th>
+                        </tr>
+                        <!-- Name -->
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <td>
+                                { targetInfos['resource_name'] }
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!-- If target is storage -->
+                    <tbody if="{ targetType === CONSTANTS.STORAGE_TARGET }">
+                        <tr class="thead-light">
+                            <th colspan="2" class="text-center">
+                                Storage
+                            </th>
+                        </tr>
+                        <!-- Name -->
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <td>
+                                { targetInfos['storage_name'] }
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!-- If target is user -->
+                    <tbody if="{ targetType === CONSTANTS.USER_TARGET }">
+                        <tr class="thead-light">
+                            <th colspan="2" class="text-center">
+                                User
+                            </th>
+                        </tr>
+                        <!-- Name -->
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <td>
+                                { targetInfos['company_user_name'] } { targetInfos['company_user_surname'] }
+                            </td>
+                        </tr>
+                        <!-- Email -->
+                        <tr>
+                            <th>
+                                email
+                            </th>
+                            <td>
+                                { targetInfos.email }
+                            </td>
+                        </tr>
+                        <!-- Rights level -->
+                        <tr>
+                            <th>
+                                Rights
+                            </th>
+                            <td>
+                                { targetInfos['accreditation_level'] }
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!-- If target is group -->
+                    <tbody if="{ targetType === CONSTANTS.GROUP_TARGET }">
+                        <tr class="thead-light">
+                            <th colspan="2" class="text-center">
+                                Group
+                            </th>
+                        </tr>
+                        <!-- Name -->
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <td>
+                                { targetInfos['company_group_name'] }
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!-- If targets are group and user -->
+                    <tbody if="{ targetType === CONSTANTS.USER_GROUP_TARGET }">
+                        <!-- Group -->
+                        <tr class="thead-light">
+                            <th colspan="2" class="text-center">
+                                Group
+                            </th>
+                        </tr>
+                        <!-- Name -->
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <td>
+                                { targetInfos['company_group_name'] }
+                            </td>
+                        </tr>
+                        <!-- User -->
+                        <tr class="thead-light">
+                            <th colspan="2" class="text-center">
+                                User
+                            </th>
+                        </tr>
+                        <!-- Name -->
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <td>
+                                { targetInfos['company_user_name'] } { targetInfos['company_user_surname'] }
+                            </td>
+                        </tr>
+                        <!-- Email -->
+                        <tr>
+                            <th>
+                                email
+                            </th>
+                            <td>
+                                { targetInfos.email }
+                            </td>
+                        </tr>
+                        <!-- Rights level -->
+                        <tr>
+                            <th>
+                                Rights
+                            </th>
+                            <td>
+                                { targetInfos['accreditation_level'] }
+                            </td>
+                        </tr>
+                    </tbody>
+                    <!-- If targets are group and storage -->
+                    <tbody if="{ targetType === CONSTANTS.STORAGE_GROUP_TARGET }">
+                        <!-- Group -->
+                        <tr class="thead-light">
+                            <th colspan="2" class="text-center">
+                                Group
+                            </th>
+                        </tr>
+                        <!-- Name -->
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <td>
+                                { targetInfos['company_group_name'] }
+                            </td>
+                        </tr>
+                        <!-- Storage -->
+                        <tr class="thead-light">
+                            <th colspan="2" class="text-center">
+                                Storage
+                            </th>
+                        </tr>
+                        <!-- Name -->
+                        <tr>
+                            <th>
+                                Name
+                            </th>
+                            <td>
+                                { targetInfos['storage_name'] }
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Initiator error
+            userError: "",
+            //Target error
+            targetError: "",
+            //Initiator information
+            userInfos: null,
+            //Target information
+            targetInfos: null,
+            //Target type
+            targetType: "",
+            //Don't request again
+            alreadyRequested: false,
+            //When tag is mounted
+            onMounted() {
+                //Get information
+                this.getUser();
+                this.getTarget();
+            },
+            //Before tag updates
+            onBeforeUpdate() {
+                if(!this.alreadyRequested) {
+                    //Get information if new request needed
+                    this.getUser();
+                    this.getTarget();
+                } else
+                    this.alreadyRequested = false;
+            },
+            //When tag is updated
+            onUpdated() {
+                if(this.props.log.toggle)
+                    //If show content
+                    $("#collapse-log-" + this.props.log['company_log_id']).collapse('show');
+                else
+                    //If hide content
+                    $("#collapse-log-" + this.props.log['company_log_id']).collapse('hide');
+            },
+            //Get initiator information
+            async getUser() {
+                //Requesting
+                let res = await makeServiceAjax().getUserById(this.props.log['company_user_id']);
+
+                if(res.worked) {
+                    //If worked
+                    this.userError = "";
+                    this.userInfos = res.content;
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                } else {
+                    //If didn't work
+                    this.userInfos = null;
+                    this.userError = res.content;
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                }
+            },
+            //Get target information
+            async getTarget() {
+                let res = {
+                    worked: false,
+                    content: ""
+                };
+                let resU, resG, ids;
+
+                //Get target type
+                this.targetType = CONSTANTS.actionToType(this.props.log.action);
+                switch (this.targetType) {
+                    case CONSTANTS.COMPANY_TARGET:
+                        res.worked = true;
+                        res.content = this.props.log['target_name'];
+                        break;
+                    case CONSTANTS.USER_TARGET:
+                        res = await makeServiceAjax().getUserById(this.props.log['target_id']);
+                        break;
+                    case CONSTANTS.GROUP_TARGET:
+                        res = await makeServiceAjax().getGroupById(this.props.log['target_id']);
+                        break;
+                    case CONSTANTS.STORAGE_TARGET:
+                        res.worked = true;
+                        res.content = this.props.log['target_name'];
+                        break;
+                    case CONSTANTS.RESOURCE_TARGET:
+                        res.worked = true;
+                        res.content = this.props.log['target_name'];
+                        break;
+                    case CONSTANTS.USER_GROUP_TARGET:
+                        //Ids are like : this.props.log['target_id'] = 'user_id:group_id'
+                        ids = this.props.log['target_id'].split(":");
+                        resU = await makeServiceAjax().getUserById(ids[1]);
+                        resG = await makeServiceAjax().getGroupById(ids[0]);
+                        res.worked = (resU.worked && resG.worked);
+                        res.content = res.worked ? Object.assign(resU.content,resG.content) : (resU.content + ' and ' + resG.content);
+                        break;
+                    case CONSTANTS.STORAGE_GROUP_TARGET:
+                        //Ids are like : this.props.log['target_id'] = 'storage_id:group_id'
+                        ids = this.props.log['target_id'].split(":");
+                        resG = await makeServiceAjax().getGroupById(ids[1]);
+                        res.worked = resG.worked;
+                        res.content = resG.content;
+                        //Names are like : this.props.log['target_name'] = 'storage_name:group_name'
+                        res.content['storage_name'] = this.props.log['target_name'].split(":")[0];
+                        break;
+                    default:
+                        res.content = "Unknown action";
+                        break;
+                }
+
+                if(res.worked) {
+                    //If worked
+                    this.targetError = "";
+                    this.targetInfos = res.content;
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                } else {
+                    //If didn't work
+                    this.targetInfos = this.props.log['target_name'];
+                    this.targetError = res.content;
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                }
+            }
+        }
+    </script>
+</loginfo>

@@ -1,0 +1,172 @@
+<!-- Select for groups -->
+<groupselect getValues="{ getValues }" reset="{ reset }">
+    <!-- Label -->
+    <label if="{ props.label }" class="mt-3">{ props.label }
+        <span if="{ props.required }" class="text-primary"> *</span>
+    </label>
+
+    <!-- Select -->
+    <div class="card { !props.label ? 'mt-3' : '' }">
+        <!-- Head -->
+        <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+            { addGroup ? 'Add a group' : 'Choose one or more group(s)' }
+
+            <div>
+                <!-- Add group button -->
+                <button if="{ props.allowadd }" type="button" class="btn btn-primary mr-3" onclick="{ onAddGroup }">
+                    { addGroup ? 'Close' : '+ New group' }
+                </button>
+
+                <!-- Refresh button -->
+                <button type="button" class="btn btn-primary" onclick="{ props.refresh }">
+                    <svg class="bi bi-arrow-clockwise" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M3.17 6.706a5 5 0 0 1 7.103-3.16.5.5 0 1 0 .454-.892A6 6 0 1 0 13.455 5.5a.5.5 0 0 0-.91.417 5 5 0 1 1-9.375.789z"/>
+                        <path fill-rule="evenodd" d="M8.147.146a.5.5 0 0 1 .707 0l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5a.5.5 0 1 1-.707-.708L10.293 3 8.147.854a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div id="{ props.eid }" class="card-body p-0 rounded-0" style="overflow-y: scroll; max-height: 50vh;">
+            <!-- Available groups list -->
+            <ul id="list-group-collapse" class="list-group rounded-0 collapse show">
+                <!-- Each group -->
+                <li class="list-group-item rounded-0
+                { isSelected(group) ? 'list-group-item-primary' : 'list-group-item-action' }
+                { index > 0 ? 'border-top border-right-0 border-left-0 border-bottom-0' : 'border-0' }"
+                    each="{ (group,index) in groups }" onclick="{ onClick(group) }" style="cursor: pointer;">
+
+                    { group['company_group_name'] }
+                </li>
+            </ul>
+
+            <!-- New group form -->
+            <form id="add-group-collapse" class="form-group container mt-2 collapse" onsubmit="{ onAddSubmit }">
+                <div class="mb-3">
+                    <span class="text-primary">*</span> required fields
+                </div>
+
+                <!-- Add group error -->
+                <errormsg show="{ addError }" value="An error has occurred : { addError }. Please, try again."/>
+
+                <!-- Title -->
+                <h2 class="alert alert-dark mb-0">Add a new group</h2>
+
+                <!-- Fields -->
+                <groupfields/>
+
+                <!-- Submit button -->
+                <div class="container-fluid d-flex justify-content-center align-items-center mt-3">
+                    <button type="submit" class="btn btn-primary">Add group</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Currently adding group
+            addGroup: false,
+            //Add group error
+            addError: "",
+            //Selected groups
+            selected: [],
+            //Available groups
+            groups: [],
+            //When tag is mounted
+            onMounted() {
+                //Reset the tag
+                this.reset();
+            },
+            //Uses to reset selection and update groups list
+            reset() {
+                //Selection from given value
+                this.selected = this.props.value ? Array.from(this.props.value) : [];
+                //Available groups
+                this.groups = Array.from(this.props.groups);
+                //Sort name by alphabetic order
+                this.groups.sort(function (a,b) {
+                    return a['company_group_name'].localeCompare(b['company_group_name']);
+                });
+                this.update();
+            },
+            //When a group is selected
+            onClick(group) {
+                return (e)=> {
+                    e.preventDefault();
+                    let indexOf = this.selected.indexOf(this.isSelected(group));
+
+                    if(indexOf >= 0)
+                        //Deselect if already selected
+                        this.selected.splice(indexOf,1);
+                    else
+                        //Add in selection
+                        this.selected.push(group);
+
+                    this.update();
+                };
+            },
+            //Get selected groups
+            getValues() {
+                return this.selected;
+            },
+            //Is a group selected
+            isSelected(group) {
+                //If a group with the same id is selected, return the group
+                for(let i of this.selected) {
+                    if(i['company_group_id'] === group['company_group_id'])
+                        return i;
+                }
+
+                //Not selected
+                return null;
+            },
+            //Submitting add form
+            onAddSubmit(e) {
+                e.preventDefault();
+                //Get fields tags
+                let groupFields = this.$('groupfields');
+
+                //Check fields
+                if(groupFields.check()) {
+                    //Add new group if fields are valid
+                    this.addNewGroup(groupFields.getValues());
+                }
+            },
+            //Request for a new group
+            async addNewGroup(groupValues) {
+                //Requesting
+                let res = await makeServiceAjax().createGroup(
+                    groupValues.name
+                );
+
+                if(res.worked) {
+                    //If worked
+                    this.addError = "";
+                    //Update parent
+                    if(this.props.refresh) this.props.refresh();
+                    //Hide add group form
+                    this.addGroup = false;
+                    $("#add-group-collapse").collapse('hide');
+                    $("#list-group-collapse").collapse('show');
+                } else {
+                    //If don't worked
+                    this.addError = res.content;
+                    this.update();
+                }
+            },
+            //Toggle add group form
+            onAddGroup(e) {
+                e.preventDefault();
+                //Show if hidden and hide if showed
+                this.addGroup = !this.addGroup;
+                this.update();
+                $("#list-group-collapse").collapse('toggle');
+                $("#add-group-collapse").collapse('toggle');
+            }
+        }
+    </script>
+</groupselect>

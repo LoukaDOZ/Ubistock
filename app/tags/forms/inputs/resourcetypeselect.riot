@@ -1,0 +1,39 @@
+<!-- Select for resource type -->
+<resourcetypeselect getValues="{ getValues }">
+    <!-- Label -->
+    <label if="{ props.label }" for="{ props.eid }" class="mt-3">{ props.label }
+        <span if="{ props.required }" class="text-primary"> *</span>
+    </label>
+
+    <!-- Select -->
+    <select id="{ props.eid }" name="{ props.name }" class="custom-select">
+        <option value="{ CONSTANTS.FOOD }" selected>
+            { CONSTANTS.resourceTypeToString(CONSTANTS.FOOD) }
+        </option>
+        <option value="{ CONSTANTS.RAW_MATERIAL }">
+            { CONSTANTS.resourceTypeToString(CONSTANTS.RAW_MATERIAL) }
+        </option>
+        <option value="{ CONSTANTS.HARDWARE }">
+            { CONSTANTS.resourceTypeToString(CONSTANTS.HARDWARE) }
+        </option>
+        <option value="{ CONSTANTS.SOFTWARE }">
+            { CONSTANTS.resourceTypeToString(CONSTANTS.SOFTWARE) }
+        </option>
+        <option value="{ CONSTANTS.OFFICE_SUPPLY }">
+            { CONSTANTS.resourceTypeToString(CONSTANTS.OFFICE_SUPPLY) }
+        </option>
+        <option value="{ CONSTANTS.TOOL }">
+            { CONSTANTS.resourceTypeToString(CONSTANTS.TOOL) }
+        </option>
+    </select>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Get values
+            getValues() {
+                return this.$("#" + this.props.eid).value;
+            }
+        }
+    </script>
+</resourcetypeselect>

@@ -1,0 +1,232 @@
+%default packages
+\documentclass[a4paper, 12pt]{report}
+\usepackage{fancyhdr}
+\pagestyle{fancyplain}
+\fancyhf{}
+\rfoot{\thepage}
+\lfoot{Louka Doz \& Thibault Meynier}
+
+
+%adds the ability to put images and figures in the document
+\usepackage{graphicx}
+
+%sets default font
+\usepackage[T1]{fontenc}
+
+%sets document langage to french
+\usepackage[french]{babel}
+
+%adds landscape page orientation
+\usepackage{lscape}
+
+%adds easier chapter styles customization
+\usepackage{titlesec}
+
+%adds ssmal and HUGE font size
+\usepackage[12pt]{moresize}
+
+%for custom list style
+\usepackage{enumitem}
+
+%adds links and hyperlinks
+\usepackage{hyperref}
+
+%for extra colors
+\usepackage[dvipsnames]{xcolor}
+
+%for better tables
+\usepackage{array}
+
+%for bigger tables
+\usepackage{longtable}
+
+\usepackage{helvet}
+
+\usepackage{tabularx}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+
+
+%changes default lists style for smaller dashes
+\setlist[itemize]{label=--}
+
+%changes the display of chapters, 
+%do not displays : "chapter n : name_of_the_chapter"
+%displays : "n. name_of_the_chapter" instead
+\makeatletter
+\def\@makechapterhead#1{%
+	\vspace*{0\p@}%
+	{	\parindent \z@ \raggedright \normalfont
+		\ifnum \c@secnumdepth >\m@ne
+		  %\if@mainmatter
+		    %\huge\bfseries \@chapapp\space \thechapter
+		    \huge\bfseries \thechapter.\space%
+		    %\par\nobreak
+		    %\vskip 20\p@
+		  %\fi
+		\fi
+		\interlinepenalty\@M
+		\huge \bfseries #1\par\nobreak
+		\vskip 40\p@
+	}}
+\makeatother
+
+
+%adds infos to the document
+\title{}
+
+\author{
+	Louka Doz
+	\and 
+	Thibault Meynier
+}
+\date{\raggedleft \today}
+
+
+\hypersetup{
+	colorlinks=true,
+	linkcolor={BlueViolet},
+	filecolor=magenta,
+	urlcolor={MidnightBlue}
+}
+
+
+%starts to write the document
+\begin{document}
+	\makeatletter
+	\begin{titlepage}
+
+		\begin{flushleft}
+			\begin{minipage}{4cm}
+				\includegraphics[height=4cm]{img/logo_iut}
+			\end{minipage}
+			\hfill
+			\begin{minipage}{5cm}
+				\begin{flushright}
+		        	\small IUT Sénart-Fonatinebleau\\
+		        	département informatique\\
+		        	Route forestière Hurtault\\
+		        	77300 Fontainebleau\\
+				\end{flushright}
+			\end{minipage}
+		\end{flushleft}
+
+		\vfill
+
+		\begin{center}
+	        \vspace*{3cm}%
+	        {\HUGE Ubistock}\\[0.5cm]
+	        {\huge Rapport d'avancement hebdomadaire}\\[0.5cm]
+	        {\Large \today}\\[0.5cm]
+        	{\large \textit{Année scolaire 2019-2020}}\\[1cm]
+	    \end{center}
+	    \vfill
+        \begin{raggedright}
+	        \begin{description}
+	        	\item[\large \underline{Tutrice de projet :}] \large \textbf{Régine Laleau}\\[1cm]
+	        	\item[\underline{Par :}] 
+		        	\begin{itemize}
+			        		\item Louka Doz
+			        		\item Thibault Meynier
+			        \end{itemize}
+	        \end{description}
+        \end{raggedright}        
+	    \let\newpage\relax% Avoid following page break
+	\end{titlepage}
+	\makeatother
+
+
+	%prints a formated table of contents
+	\tableofcontents
+
+	%jumps a page
+
+	\newpage
+
+	\chapter*{Synthèse}
+		Durant cette semaine, l’équipe projet a revu plusieurs éléments d’architecture ce qui a pris du temps et conduira probablement à des changements dans les semaines suivantes.
+		L’équipe a longtemps hésité quant à l’implémentation de son système de permissions.
+
+
+	 \chapter{Nouvelles implémentations}
+		\section{Base de données}
+			\begin{itemize}
+				\item création de script pour mettre en place la base de données à partir d’une base vierge
+			\end{itemize}
+
+		\section{API}
+			\begin{itemize}
+				\item création d’entreprises;
+				\item ajout de stockages;
+				\item suppression de stockages;
+				\item renommage de stockages.
+			\end{itemize}
+
+		\section{Interface}
+			\begin{itemize}
+				\item prototype de page d’accueil
+			\end{itemize}
+
+	\chapter{Changements dans le modèle de la base de données}
+		\begin{itemize}
+			\item Pour ne pas interférer avec le système de gestion de base de données, la table user se nomme maintenant company\_user et son attribut user\_id devient company\_user\_id.
+		\end{itemize}
+			
+			
+			
+
+	\chapter{Changements d'architecture}
+		\section{Gestion de permissions}
+			Les permissions seront accordées aux utilisateurs selon des types/paliers de permissions. 
+			Les stockages sur lesquels ils pourront exercer ces permissions seront déterminés par leur appartenance à des groupes.
+
+		\section{Groupes}
+			Les groupes se définissent par : un nom et l’appartenance à une entreprise. Les groupes permettent de limiter l’action des utilisateurs sur les stockages et ressources de l’entreprise. Chaque groupe est lié à un ou plusieurs stockages. Les membres du groupe peuvent alors effectuer des actions, en fonction de leur niveau de permission, sur les stockages liés au groupe, ainsi que leurs sous-stockages et ressources.
+
+		\section{Paliers}
+			Les paliers fonctionnent un peu comme des niveaux d'accréditation : plus le niveau est haut, plus on a de privilèges. le fondateur de l’entreprise a, bien entendu, le niveau d’accréditation le plus élevé.
+
+			Les privilèges que les utilisateurs possèdent ne s’appliquent qu’au stockages et ressources concernées par le ou les groupes auxquels les utilisateurs appartiennent.
+			Voici une première version des droits attribués à chaque palier :
+
+			\begin{description}
+				\item [4] visiteur
+					\begin{description}
+						\item [vision] peut voir la quantité et le nom des ressources + 
+						\item [modification] aucun droit
+						\item [gestion utilisateur] aucun droit
+					\end{description}
+
+				\item [3] collaborateur
+					\begin{description}
+						\item [vision] palier 4 + voir le reste des informations des resources
+						\item [modification] peut augmenter et diminuer la quantité des resources.
+						\item [gestion utilisateur] aucun droit
+					\end{description}
+
+				\item [2] modérateur
+					\begin{description}
+						\item [vision] palier 3
+						\item [modification] palier 3 + creer, supprimer, renommer et déplacer des stockages ou resources.
+						\item [gestion utilisateur] aucun droit
+					\end{description}
+
+				\item [1] administrateur (appartient à tous les groupes)
+					\begin{description}
+						\item [vision] pallier 2
+						\item [modification] pallier 2
+						\item [gestion utilisateur] créer, supprimer, promouvoir, rétrograder un utilisateur (ne s'applique qu'aux utilisateurs de niveau 2 maximum), affecter un dossier/un utilisateur à groupe, l'en exclure.
+					\end{description}
+
+				\item [0] super administrateur apartient à tous les groupes)
+					\begin{description}
+						\item [vision] palier 1
+						\item [modification] palier 1
+						\item [gestion utilisateur] palier 1 + peut promouvoir jusqu'au palier 1 + ne peut pas être rétrogradé, supprimé ou exclu d'un groupe par un administrateur
+					\end{description}
+			\end{description}	
+
+
+		
+\end{document}

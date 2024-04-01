@@ -1,0 +1,87 @@
+<!-- USer fields -->
+<userfields check="{ check }" getValues="{ getValues }">
+    <!-- Email -->
+    <txtinput eid="user-email" name="user-email" label="Email" value="{ props.values ? props.values.email : '' }" required="{ true }"/>
+    <inputerrormsg show="{ !formValidation.email }" value="Required field"/>
+    <inputerrormsg show="{ !formValidation.emailRegex }" value="Invalid email"/>
+
+    <!-- First name -->
+    <txtinput eid="user-first-name" name="user-first-name" label="First name" value="{ props.values ? props.values['first-name'] : '' }" required="{ true }"/>
+    <inputerrormsg show="{ !formValidation.firstName }" value="Required field"/>
+
+    <!-- Last name -->
+    <txtinput eid="user-last-name" name="user-last-name" label="Last name" value="{ props.values ? props.values['last-name'] : '' }" required="{ true }"/>
+    <inputerrormsg show="{ !formValidation.lastName }" value="Required field"/>
+
+    <!-- Password -->
+    <pswdinput eid="user-password" label="Password" name="user-password" value="{ props.values ? props.values.password : '' }" required="{ !props.allowemptypswd }" strongbar="{ true }"/>
+    <inputerrormsg show="{ !formValidation.password && !props.allowemptypswd }" value="Required field"/>
+
+    <!-- Password confirmation -->
+    <pswdinput eid="user-confirm-password" label="Confirm password" name="user-confirm-password" value="{ props.values ? props.values.password : '' }" required="{ !props.allowemptypswd }"/>
+    <inputerrormsg show="{ !formValidation.confirmPassword }" value="Required field"/>
+    <inputerrormsg show="{ !formValidation.samePasswords }" value="Passwords aren't the same"/>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Inputs' validation
+            formValidation: {
+                email: true,
+                emailRegex: true,
+                firstName: true,
+                lastName: true,
+                password: true,
+                confirmPassword: true,
+                samePasswords: true
+            },
+            //When tag is mounted
+            onMounted() {
+                //Get inputs
+                this.emailTag = this.$('#user-email');
+                this.firstNameTag = this.$('#user-first-name');
+                this.lastNameTag = this.$('#user-last-name');
+                this.passwordTag = this.$('#user-password');
+                this.confirmPasswordTag = this.$('#user-confirm-password');
+            },
+            //Check inputs' values
+            check() {
+                //Get inputs' values
+                let email = this.emailTag.value;
+                let firstName = this.firstNameTag.value;
+                let lastName = this.lastNameTag.value;
+                let password = this.passwordTag.value;
+                let confirmPassword = this.confirmPasswordTag.value;
+
+                //Check inputs' values
+                this.formValidation.email = (email.length > 0);
+                this.formValidation.emailRegex = new RegExp(CONSTANTS.EMAIL_REGEX).test(email);
+                this.formValidation.firstName = (firstName.length > 0);
+                this.formValidation.lastName = (lastName.length > 0);
+                this.formValidation.password = (password.length > 0 || this.props.allowemptypswd);
+                this.formValidation.confirmPassword = (confirmPassword.length > 0 || this.props.allowemptypswd);
+                this.formValidation.samePasswords = (password === confirmPassword);
+
+                //Show or hide input errors
+                this.update();
+                //Returning false if at least one input isn't valid
+                for(let validation of Object.values(this.formValidation))
+                    if(!validation)
+                        return false;
+
+                //All inputs are valid
+                return true;
+            },
+            //Return inputs values
+            getValues() {
+                return {
+                    'email': this.emailTag.value,
+                    'first-name': this.firstNameTag.value,
+                    'last-name': this.lastNameTag.value,
+                    'password': this.passwordTag.value,
+                    'confirm-password': this.confirmPasswordTag.value
+                };
+            }
+        }
+    </script>
+</userfields>

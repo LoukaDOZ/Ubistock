@@ -1,0 +1,45 @@
+<!-- Company fields -->
+<companyfields check="{ check }" getValues="{ getValues }">
+    <!-- Company name -->
+    <txtinput eid="company-name" name="company-name" label="Company name" value="{ props.values ? props.values.name : '' }" required="{ true }"/>
+    <inputerrormsg show="{ !formValidation.name }" value="Required field"/>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Inputs' validation
+            formValidation: {
+                name: true
+            },
+            //When tag is mounted
+            onMounted() {
+                //Get inputs
+                this.nameTag = this.$('#company-name');
+            },
+            //Check inputs' values
+            check() {
+                //Get inputs' values
+                let name = this.nameTag.value;
+
+                //Check inputs' values
+                this.formValidation.name = (name.length > 0);
+
+                //Show or hide input errors
+                this.update();
+                //Returning false if at least one input isn't valid
+                for(let validation of Object.values(this.formValidation))
+                    if(!validation)
+                        return false;
+
+                //All inputs are valid
+                return true;
+            },
+            //Return inputs values
+            getValues() {
+                return {
+                    'name': this.nameTag.value
+                };
+            }
+        }
+    </script>
+</companyfields>

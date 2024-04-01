@@ -1,0 +1,70 @@
+<!-- Log in -->
+<loginpage>
+    <!-- form -->
+    <div class="container px-5 py-3">
+        <form class="form-group" onsubmit="{ onSubmit }">
+            <div class="mb-3">
+                <span class="text-primary">*</span> required fields
+            </div>
+            <!-- Log in error -->
+            <errormsg show="{ error }" value="An error has occurred : { error }. Please, try again."/>
+
+            <!-- Title -->
+            <h2 class="alert alert-dark mb-0">Log in</h2>
+
+            <!-- Fields -->
+            <loginfields/>
+
+            <!-- Submit button -->
+            <div class="container-fluid d-flex justify-content-center align-items-center mt-3">
+                <button type="submit" class="btn btn-primary">Log in</button>
+            </div>
+        </form>
+
+        <!-- Privacy policy -->
+        <div class="container-fluid p-3 mt-5 border border-dark rounded-lg">
+            <div class="h4 font-weight-bold">Privacy policy</div>
+            <privacypolicy/>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Log in error
+            error: "",
+            //Log in submit
+            onSubmit(e) {
+                e.preventDefault();
+                //Get fields
+                let loginFields = this.$('loginfields');
+
+                //Check fields
+                if(loginFields.check()) {
+                    //Log in
+                    this.login(loginFields.getValues());
+                }
+            },
+            //Log in
+            async login(loginValues) {
+                //Requesting
+                let res = await makeServiceAjax().login(
+                    loginValues.email,
+                    loginValues.password,
+                    true
+                );
+
+                if(res.worked) {
+                    //If worked
+                    this.error = "";
+                    //Give parent user infos
+                    this.props.connect(res.content);
+                } else {
+                    //If didn't work
+                    this.error = res.content;
+                    this.update();
+                }
+            }
+        }
+    </script>
+</loginpage>

@@ -1,0 +1,77 @@
+<!-- Welcome page -->
+<homepage>
+    <div class="container-fluid p-0">
+        <!-- Start text -->
+        <div class="container-fluid text-center bg-secondary text-black-50 p-5">
+            <h1>Lets get started</h1>
+            <h4>Create a new online storage for your company !</h4>
+            <button type="button" class="btn btn-outline-warning mt-2" onclick="{ props.changepage(CONSTANTS.REGISTER_PAGE) }">Register</button>
+        </div>
+
+        <!-- Company text -->
+        <div class="container-fluid row p-5 m-0">
+            <div class="col-sm-12 col-md-6 text-center">
+                <h1>What is UBISTOCK ?</h1>
+                <p>UBISTOCK provides you an online storage for your company. Feel free to manage your storages and resources as you like with our file managing system.<br>
+                    Create new accounts for your employees so they can access to your online storage. Add and remove right access, by increasing or decreasing rights level, for each account associated with your storage.</p>
+            </div>
+            <div class="col-sm-12 col-md-6 d-none d-sm-block text-center h-100 d-flex align-items-center justify-content-center">
+                <img src="../assets/images/logo.png" alt="test img" style="height: 150px;">
+            </div>
+        </div>
+
+        <!-- Storage text -->
+        <div class="container-fluid row p-5 m-0">
+            <div class="col-sm-12 col-md-6 d-sm-block text-center h-100 d-flex align-items-center justify-content-center">
+                <img src="../assets/images/cardboards.png" alt="test img" style="height: 150px;">
+            </div>
+            <div class="col-sm-12 col-md-6 text-center">
+                <h1>Storage system</h1>
+                <p>Inspired by the file system on your computer, our storage system simplifies the way to manage your storage because everybody knows how to use it.
+                    Considering storage as folders, and resources as files, you can easily select, create, delete, rename, move or copy them.<br>
+                You can also put minimums to be alerted when resource's quantity is too low.</p>
+            </div>
+        </div>
+
+        <!-- Members text -->
+        <div class="container-fluid row p-5 m-0">
+            <div class="col-sm-12 col-md-6 text-center">
+                <h1>Members management</h1>
+                <p>In the members page, you will be able to manage your team. Create account for your team or outside collaborators.
+                    Share your power by giving them rights so, they can help you to manage your storage and your team. Edit accounts as much as you need.</p>
+            </div>
+            <div class="col-sm-12 col-md-6 d-none d-sm-block text-center h-100 d-flex align-items-center justify-content-center">
+                <img src="../assets/images/member.png" alt="test img" style="height: 150px;">
+            </div>
+        </div>
+
+        <!-- Groups text -->
+        <div class="container-fluid row p-5 m-0">
+            <div class="col-sm-12 col-md-6 d-sm-block text-center h-100 d-flex align-items-center justify-content-center">
+                <img src="../assets/images/group.png" alt="test img" style="height: 150px;">
+            </div>
+            <div class="col-sm-12 col-md-6 text-center">
+                <h1>Add groups</h1>
+                <p>In order to precisely set on which storage and resources member's rights apply, Ubistock allows you to create groups and bind accounts and storage to them whenever you want.
+                    Members can only do actions on storage included in the groups which he belongs to.</p>
+            </div>
+        </div>
+
+        <!-- Logs text -->
+        <div class="container-fluid row p-5 m-0">
+            <div class="col-sm-12 col-md-6 text-center">
+                <h1>Keep edit history</h1>
+                <p>To limit unauthorized modifications, logs are generated on every action. Look the logs page to see what was done, when, by who and on what.</p>
+            </div>
+            <div class="col-sm-12 col-md-6 d-none d-sm-block text-center h-100 d-flex align-items-center justify-content-center">
+                <img src="../assets/images/log.png" alt="test img" style="height: 150px;">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS
+        }
+    </script>
+</homepage>

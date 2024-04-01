@@ -1,0 +1,298 @@
+<!-- Members -->
+<memberspage>
+    <!-- Title -->
+    <div class="container px-5 pb-0 pt-3 my-0">
+        <h2 class="alert alert-dark d-flex flex-wrap justify-content-between align-items-center }">
+            Members
+
+            <!-- Refresh button -->
+            <button type="button" class="btn btn-outline-dark" onclick="{ getUsers }">
+                <svg class="bi bi-arrow-clockwise" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M3.17 6.706a5 5 0 0 1 7.103-3.16.5.5 0 1 0 .454-.892A6 6 0 1 0 13.455 5.5a.5.5 0 0 0-.91.417 5 5 0 1 1-9.375.789z"/>
+                    <path fill-rule="evenodd" d="M8.147.146a.5.5 0 0 1 .707 0l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5a.5.5 0 1 1-.707-.708L10.293 3 8.147.854a.5.5 0 0 1 0-.708z"/>
+                </svg>
+                Refresh
+            </button>
+        </h2>
+
+        <!-- Load content error -->
+        <errormsg show="{ error }" value="An error has occurred while loading the page : { error }. Please, try again."/>
+    </div>
+
+    <!-- Content -->
+    <div if="{ !error }" class="container px-5 pb-3 pt-0">
+        <!-- Add member button -->
+        <button if="{ props.rights <= CONSTANTS.ADMIN }" type="button" class="btn btn-primary mb-3" onclick="{ props.changepage(CONSTANTS.NEW_USER_PAGE) }">
+            + Add a new member
+        </button>
+
+        <!-- Filters -->
+        <div class="form-group alert alert-info text-dark">
+            <div class="row">
+                <!-- Sort -->
+                <div class="col-sm-12 col-md-6 my-2">
+                    <label for="sort-by">Sort by</label>
+                    <select id="sort-by" class="custom-select" onchange="{ onSortChange }">
+                        <option value="last-name" selected>Last name</option>
+                        <option value="first-name">First name</option>
+                        <option value="permission">Rights level</option>
+                    </select>
+                </div>
+
+                <!-- Search -->
+                <form class="col-sm-12 col-md-6 my-2">
+                    <label for="search">Search</label>
+                    <div class="input-group">
+                        <input id="search" class="form-control border-right-0" type="text" name="search" placeholder="Search here" oninput="{ onSearchChange }"/>
+                        <div class="input-group-append">
+                            <!-- Reset search -->
+                            <button type="reset" class="input-group-text bg-white" onclick="{ resetSearch }">
+                                &times;
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Members list -->
+        <ul class="list-group border-top border-dark rounded-0 mt-3 pt-3">
+            <!-- Each members -->
+            <li class="list-group-item p-0" each="{ user in sortedInfos }">
+                <userinfo user="{ user }" by="{ props.rights }" deletehandler="{ onDelete(user) }"
+                          editable="{ ((user.permission > CONSTANTS.ADMIN && props.rights === CONSTANTS.ADMIN)
+                           || props.rights === CONSTANTS.SUPER_ADMIN) }" byid="{ props.byid }" edithandler="{ onEdit }" togglehandler="{ onToggle(user) }"/>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Delete member modal -->
+    <div id="delete-account-modal" class="modal fade" if="{ deletedUser }">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <!-- Modal head -->
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title font-weight-bold">Delete account ?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body text-center">
+                    <!-- Delete error -->
+                    <errormsg show="{ deleteError }" value="An error has occurred : { deleteError }. Please, try again."/>
+
+                    <div>
+                        <svg class="bi bi-exclamation-triangle text-danger" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M7.938 2.016a.146.146 0 0 0-.054.057L1.027 13.74a.176.176 0 0 0-.002.183c.016.03.037.05.054.06.015.01.034.017.066.017h13.713a.12.12 0 0 0 .066-.017.163.163 0 0 0 .055-.06.176.176 0 0 0-.003-.183L8.12 2.073a.146.146 0 0 0-.054-.057A.13.13 0 0 0 8.002 2a.13.13 0 0 0-.064.016zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/>
+                            <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/>
+                        </svg>
+                    </div>
+                    Are you sure to delete <strong>{ deletedUser['company_user_name'] + ' ' + deletedUser['company_user_surname'] } ({ deletedUser.email })</strong> account ?
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer justify-content-center">
+                    <!-- Cancel delete -->
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close" onclick="{ cancelDelete }">
+                        Cancel
+                    </button>
+                    <!-- Delete -->
+                    <button type="button" class="btn btn-danger" onclick="{ deleteUser }">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //User to delete
+            deletedUser: null,
+            //Sort
+            sortBy: 'last-name',
+            //Search
+            search: "",
+            //Information
+            infos: [],
+            //Sorted information
+            sortedInfos: [],
+            //Load content error
+            error: "",
+            //Delete error
+            deleteError: "",
+            //Don't request again
+            alreadyRequested: false,
+            //Before tag is mounted
+            onBeforeMount() {
+                //Get information
+                this.getUsers();
+            },
+            //Before tag updates
+            onBeforeUpdate() {
+                if(!this.alreadyRequested)
+                    //Get information if request needed
+                    this.getUsers();
+                else {
+                    this.alreadyRequested = false;
+
+                    //Prepare to sort
+                    this.sortedInfos = [];
+                    this.search = this.search.toLowerCase();
+
+                    if (this.search) {
+                        //Keep all users which the first or last name contains the search value
+                        for (let i of this.infos) {
+                            if (i['company_user_surname'].toLowerCase().indexOf(this.search) >= 0
+                                || i['company_user_name'].toLowerCase().indexOf(this.search) >= 0
+                                || i.email.toLowerCase().indexOf(this.search) >= 0)
+                                this.sortedInfos.push(i);
+                        }
+                    } else {
+                        //Keep all if the search value is empty
+                        this.sortedInfos = Array.from(this.infos);
+                    }
+
+                    //Sort kept users by last name, first name or rights level
+                    switch (this.sortBy) {
+                        case "last-name":
+                            this.sortedInfos.sort(function (a, b) {
+                                return a['company_user_surname'].localeCompare(b['company_user_surname']);
+                            });
+                            break;
+
+                        case "first-name":
+                            this.sortedInfos.sort(function (a, b) {
+                                return a['company_user_name'].localeCompare(b['company_user_name']);
+                            });
+                            break;
+
+                        case "permission":
+                            this.sortedInfos.sort(function (a, b) {
+                                return (a['accreditation_level'] - b['accreditation_level']);
+                            });
+                            break;
+                    }
+                }
+            },
+            //Get information
+            async getUsers(e) {
+                if(e) e.preventDefault();
+
+                //Requesting
+                let res = await makeServiceAjax().getUsers();
+
+                if(res.worked) {
+                    //If worked
+                    this.error = "";
+                    let previousInfos = Array.from(this.infos);
+                    this.infos = Object.values(res.content);
+
+                    //Set the toggle value state for users
+                    for(let i of this.infos) {
+                        i.toggle = false;
+
+                        //Set the same toggle value as before
+                        for(let j of previousInfos) {
+                            if (i['company_user_id'] === j['company_user_id'])
+                                i.toggle = j.toggle;
+                        }
+                    }
+
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                } else {
+                    //If didn't work
+                    this.infos = [];
+                    this.error = res.content;
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                }
+            },
+            //Sort change
+            onSortChange(e) {
+                e.preventDefault();
+                //Set new sort
+                this.sortBy = e.target.value;
+                this.update();
+            },
+            //Search change
+            onSearchChange(e) {
+                e.preventDefault();
+                //Set new search
+                this.search = e.target.value;
+                this.update();
+            },
+            //Reset search
+            resetSearch(e) {
+                //Unset search
+                this.search = "";
+                this.update();
+            },
+            //Toggle member
+            onToggle(user) {
+                return (e)=>{
+                    e.preventDefault();
+
+                    //Each member
+                    for(let i of this.infos) {
+                        if(i['company_user_id'] === user['company_user_id'])
+                            //Toggle if same user
+                            i.toggle = !i.toggle;
+                        else
+                            //Close to always let one member open maximum
+                            i.toggle = false;
+                    }
+
+                    this.update();
+                };
+            },
+            //Called by an child when successfully edited
+            onEdit(e) {
+                if(e) e.preventDefault();
+                this.update();
+            },
+            //Delete user
+            onDelete(user) {
+                return (e)=>{
+                    e.preventDefault();
+                    //Set user to delete
+                    this.deletedUser = user;
+                    this.update();
+                    //Show delete modal
+                    $('#delete-account-modal').modal('toggle');
+                };
+            },
+            //Cancel delete
+            cancelDelete(e) {
+                e.preventDefault();
+                //Unset user to delete
+                this.deletedUser = null;
+            },
+            //Delete user
+            async deleteUser(e) {
+                e.preventDefault();
+                //Requesting
+                let res = await makeServiceAjax().deleteUser(this.deletedUser['company_user_id']);
+
+                if(res.worked) {
+                    //If worked
+                    this.deleteError = "";
+                    this.update();
+                    //Hide delete modal
+                    $('#delete-account-modal').modal('hide');
+                } else {
+                    //If didn't work
+                    this.deleteError = res.content;
+                    this.alreadyRequested = true;
+                    this.update();
+                }
+            }
+        }
+    </script>
+</memberspage>

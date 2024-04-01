@@ -1,0 +1,304 @@
+<!-- User information -->
+<userinfo>
+    <!-- Information -->
+    <div class="{ props.user.toggle ? 'border border-secondary rounded' : '' }">
+        <div class="row m-0 card-header" onclick="{ props.togglehandler }" style="cursor: pointer;">
+            <div class="col-9 col-sm-10 col-lg-11">
+                <div class="row">
+                    <!-- Complete name -->
+                    <div class="col">
+                        { props.user['company_user_name'] } { props.user['company_user_surname'] }
+                    </div>
+                    <!-- Email -->
+                    <div class="col">
+                        { props.user['email'] }
+                    </div>
+                    <!-- Rights level -->
+                    <div class="col">
+                        <div class="badge badge-pill p-2
+                            { parseInt(props.user['accreditation_level']) === CONSTANTS.SUPER_ADMIN ? 'badge-danger' : '' }
+                            { parseInt(props.user['accreditation_level']) === CONSTANTS.ADMIN ? 'badge-warning' : '' }
+                            { parseInt(props.user['accreditation_level']) === CONSTANTS.MODERATOR ? 'badge-success' : '' }
+                            { parseInt(props.user['accreditation_level']) === CONSTANTS.COLLABORATOR ? 'badge-info' : '' }
+                            { parseInt(props.user['accreditation_level']) === CONSTANTS.VISITOR ? 'badge-secondary' : '' }">
+
+                            { CONSTANTS.rightsToString(props.user['accreditation_level']) }
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Closed/Opened icon -->
+            <div class="col-3 col-sm-2 col-lg-1 d-flex justify-content-center align-items-center">
+                <!-- Closed -->
+                <svg if="{ !props.user.toggle }" class="bi bi-caret-down-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                </svg>
+                <!-- Opened -->
+                <svg if="{ props.user.toggle }" class="bi bi-caret-up-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Body. Shown when toggle is true -->
+        <div id="collapse-user-{ props.user['company_user_id'] }" class="container-fluid { props.editable && !error ? '' : 'mt-3' } collapse">
+            <!-- Edit icons -->
+            <div class="d-flex align-items-center justify-content-end" if="{ props.editable && !error }">
+                <!-- Edit icon -->
+                <a href="" class="text-decoration-none nav-link text-dark m-3 p-0" onclick="{ onEdit }">
+                    <!-- Not editing -->
+                    <svg if="{ !edit }" class="bi bi-pencil" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M11.293 1.293a1 1 0 0 1 1.414 0l2 2a1 1 0 0 1 0 1.414l-9 9a1 1 0 0 1-.39.242l-3 1a1 1 0 0 1-1.266-1.265l1-3a1 1 0 0 1 .242-.391l9-9zM12 2l2 2-9 9-3 1 1-3 9-9z"/>
+                        <path fill-rule="evenodd" d="M12.146 6.354l-2.5-2.5.708-.708 2.5 2.5-.707.708zM3 10v.5a.5.5 0 0 0 .5.5H4v.5a.5.5 0 0 0 .5.5H5v.5a.5.5 0 0 0 .5.5H6v-1.5a.5.5 0 0 0-.5-.5H5v-.5a.5.5 0 0 0-.5-.5H3z"/>
+                    </svg>
+                    <!-- Editing -->
+                    <svg if="{ edit }" class="bi bi-x-circle" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
+                        <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
+                    </svg>
+                </a>
+
+                <!-- Delete icon -->
+                <a if="{ parseInt(props.user['accreditation_level']) > CONSTANTS.SUPER_ADMIN && !error }" onclick="{ props.deletehandler }" href="" class="text-decoration-none nav-link text-danger m-3 p-0">
+                    <svg class="bi bi-trash" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                    </svg>
+                </a>
+            </div>
+
+            <div if="{ !edit }" class="row">
+                <div class="col-md-12 col-lg-6 mb-3">
+                    <!-- Groups list -->
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-dark font-weight-bold text-center">
+                            Belonging groups
+                        </li>
+                        <!-- If admin or super admin -->
+                        <li if="{ parseInt(props.user['accreditation_level']) <= CONSTANTS.ADMIN }" class="list-group-item">
+                            Belongs to every groups
+                        </li>
+                        <!-- Load groups error -->
+                        <li if="{ error }" class="list-group-item list-group-item-danger">
+                            An error has occurred while loading groups : { error }. Please, try again.
+                        </li>
+                        <!-- Each group -->
+                        <li if="{ parseInt(props.user['accreditation_level']) > CONSTANTS.ADMIN && !error }"
+                            each="{ group in groupsInfos }" class="list-group-item">
+                            { group['company_group_name'] }
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Rights level information -->
+                <div class="col-md-12 col-lg-6 mb-3">
+                    <rightsinfo rights="{ parseInt(props.user['accreditation_level']) }"/>
+                </div>
+            </div>
+
+            <!-- Edit form -->
+            <div if="{ edit }" class="container-fluid">
+                <form class="form-group" onsubmit="{ onSubmitEdit }">
+                    <div class="mb-3">
+                        <span class="text-primary">*</span> required fields
+                    </div>
+                    <!-- Edit error -->
+                    <errormsg show="{ error }" value="An error has occurred : { error }. Please, try again."/>
+
+                    <!-- Title -->
+                    <h2 class="alert alert-dark mb-0">Edit an account</h2>
+
+                    <!-- Fields -->
+                    <userfields allowemptypswd="{ true }" values="{ { email: props.user.email,'first-name': props.user['company_user_name'],'last-name': props.user['company_user_surname'] } }"/>
+
+                    <h2 class="alert alert-dark mt-5 mb-0">Set rights level</h2>
+                    <rightsfields if="{ parseInt(props.user['accreditation_level']) > CONSTANTS.SUPER_ADMIN }" min="{ CONSTANTS.VISITOR }" max="{ props.by + 1 }"
+                                  values="{ { rights: rightsSelected } }" changetrigger="{ onRightsChange }"/>
+                    <rightsfields if="{ parseInt(props.user['accreditation_level']) === CONSTANTS.SUPER_ADMIN }" min="{ CONSTANTS.SUPER_ADMIN }" max="{ CONSTANTS.SUPER_ADMIN }"
+                                  values="{ { rights: CONSTANTS.SUPER_ADMIN } }" changetrigger="{ onRightsChange }"/>
+
+                    <h2 class="alert alert-dark mt-5 mb-0">Bind to group(s)</h2>
+                    <usergroupfields if="{ rightsSelected > CONSTANTS.ADMIN }" values="{ { selected: groupsInfos } }" byid="{ props.byid }"/>
+                    <div if="{ rightsSelected <= CONSTANTS.ADMIN }" class="alert alert-info mt-3">
+                        { parseInt(props.user['accreditation_level']) === CONSTANTS.SUPER_ADMIN ? 'Super' : '' } Administrators automatically belong to every groups
+                    </div>
+
+                    <!-- Submit button -->
+                    <div class="container-fluid d-flex justify-content-center align-items-center my-3">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+
+                    <!-- Edit error -->
+                    <errormsg show="{ error }" value="An error has occurred : { error }. Please, try again."/>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Is editing
+            edit: false,
+            //Selected rights level when editing
+            rightsSelected: null,
+            //Groups information
+            groupsInfos: [],
+            //Don't request again
+            alreadyRequested: false,
+            //Load content error
+            error: "",
+            //Before tag is mounted
+            onBeforeMount() {
+                //Set rights level selected
+                this.rightsSelected = parseInt(this.props.user["accreditation_level"]);
+            },
+            //Before tag updates
+            onBeforeUpdate() {
+                if(!this.alreadyRequested && parseInt(this.props.user['accreditation_level']) > CONSTANTS.ADMIN)
+                    //Get group information if new request needed
+                    //Don't need to get group if user rights level is superior or equals to admin 
+      				//because it means that he belongs to every group
+                    this.getGroups();
+                else
+                    this.alreadyRequested = false;
+            },
+            //When tag is updated
+            onUpdated() {
+                if(this.props.user.toggle)
+                    //If show content
+                    $("#collapse-user-" + this.props.user['company_user_id']).collapse('show');
+                else
+                    //If hide content
+                    $("#collapse-user-" + this.props.user['company_user_id']).collapse('hide');
+            },
+            //Show edit form
+            onEdit(e) {
+                if(e) e.preventDefault();
+                //Toggle
+                this.edit = !this.edit;
+                this.update();
+            },
+            //Rights level changed when editing
+            onRightsChange(newRights) {
+                //Set new rights level
+                this.rightsSelected = newRights;
+                this.update();
+            },
+            //Submit edit
+            onSubmitEdit(e) {
+                e.preventDefault();
+                //Get fields
+                let userFields = this.$('userfields');
+                let rightsFields = this.$('rightsfields');
+                let userGroupFields = this.$('usergroupfields');
+
+                //Check fields
+                if(userFields.check() && rightsFields.check() && (userGroupFields && userGroupFields.check()) || !userGroupFields) {
+                    //Request edit
+                    this.editUser(userFields.getValues(),
+                        rightsFields.getValues(),
+                        userGroupFields ? userGroupFields.getValues() : null);
+                }
+            },
+            //Get group information
+            async getGroups(e) {
+                if(e) e.preventDefault();
+
+                //Requesting
+                let res = await makeServiceAjax().getGroupsOf(this.props.user['company_user_id']);
+
+                if(res.worked) {
+                    //If worked
+                    this.error = "";
+                    //Convert group to array and sort name by alphabetic order
+                    this.groupsInfos = Object.values(res.content).sort(function (a,b) {
+                        return a['company_group_name'].localeCompare(b['company_group_name']);
+                    });
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                } else {
+                    //If didn't work
+                    this.error = res.content;
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                }
+            },
+            //Edit user
+            async editUser(userValues,rightsValues,userGroupValues) {
+                let obj = {};
+                //Keep what changed
+                if(userValues.permission !== this.props.user['accreditation_level']) obj.permission = rightsValues.rights;
+                if(userValues.name !== this.props.user['company_user_name']) obj.name = userValues['first-name'];
+                if(userValues.surname !== this.props.user['company_user_surname']) obj.surname = userValues['last-name'];
+                if(userValues.email !== this.props.user.email) obj.email = userValues.email;
+                if(userValues.password) obj.password = userValues.password;
+
+                //Requesting
+                let res = await makeServiceAjax().editProfile(this.props.user['company_user_id'], obj);
+
+                if(res.worked) {
+                    //If worked
+                    this.error = "";
+
+                    if(userGroupValues) {
+                        let selectedGroups = userGroupValues.groups;
+                        let previousGroups = this.groupsInfos;
+                        let found = false;
+
+                        //Each previous groups
+                        for(let a of previousGroups) {
+                            //Each selected groups
+                            for(let b of selectedGroups) {
+                                if(a['company_group_id'] === b['company_group_id']) {
+                                    //Remove group if was already selected
+                                    selectedGroups.splice(selectedGroups.indexOf(b),1);
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                            if(!found) {
+                                //Add group if wasn't selected
+                                selectedGroups.push(a);
+                            } else
+                                found = false;
+                        }
+
+                        //Each group to toggle
+                        for (let i of selectedGroups) {
+                            //Requesting
+                            let res2 = await makeServiceAjax().toggleUserGroup(
+                                res.content['company_user_id'],
+                                i['company_group_id']);
+
+                            if (res2.worked) {
+                                //If worked
+                                this.error = "";
+                            } else {
+                                //If didn't work
+                                this.error = res2.content;
+                                this.update();
+                                return;
+                            }
+                        }
+                    }
+
+                    //Close edit form
+                    this.edit = false;
+                    //Tells parent to update
+                    this.props.edithandler();
+                    this.update();
+
+                } else {
+                    //If didn't work
+                    this.error = res.content;
+                    this.update();
+                }
+            }
+        }
+    </script>
+</userinfo>

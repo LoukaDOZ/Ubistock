@@ -1,0 +1,44 @@
+<app>
+    <!-- If disconnected -->
+    <disconnectedpages if="{ !user }" page="{ page }" changepage="{ changePage }" connect="{ connect }"/>
+
+    <!-- If connected -->
+    <connectedpages if="{ user }" user="{ user }" page="{ page }" changepage="{ changePage }" disconnect="{ disconnect }"/>
+
+    <script>
+        export default {
+            //Current page
+            page: CONSTANTS.HOME_PAGE,
+            CONSTANTS: CONSTANTS,
+            //User information after login
+            user: null,
+            //Change current page
+            changePage(page,now) {
+                if(!now) {
+                    //Called with an event
+                    return (e) => {
+                        e.preventDefault();
+                        this.page = page;
+                        this.update();
+                    };
+                } else {
+                    //Called manually
+                    this.page = page;
+                    this.update();
+                }
+            },
+            //Set user information when user successfully log in
+            connect(user) {
+                this.user = user;
+                this.page = CONSTANTS.STORAGE_PAGE;
+                this.update();
+            },
+            //Disconnect user
+            disconnect() {
+                this.user = null;
+                this.page = CONSTANTS.LOGIN_PAGE;
+                this.update();
+            }
+        }
+    </script>
+</app>

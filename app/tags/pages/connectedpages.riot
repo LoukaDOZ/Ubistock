@@ -1,0 +1,104 @@
+<!-- If user is connected -->
+<connectedpages>
+    <!-- Disconnect modal -->
+    <div id="disconnect-modal" class="modal fade">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <!-- Modal head -->
+                <div class="modal-header">
+                    <h5 class="modal-title font-weight-bold">Log out ?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body text-center">
+                    Are you sure to log out ?
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer justify-content-center">
+                    <!-- Cancel button -->
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" aria-label="Close">
+                        Cancel
+                    </button>
+                    <!-- Log out button -->
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close"
+                            onclick="{ props.disconnect }">
+                        Log out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nav bar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <!-- Company name -->
+        <a class="navbar-brand" href="#" data-toggle="modal" data-target="#disconnect-modal">
+            <img src="../assets/images/logo.png" height="30" class="d-inline-block align-top" alt="logo"/>
+            Ubistock
+        </a>
+
+        <ul class="navbar-nav mr-auto">
+            <!-- Online storage -->
+            <li class="nav-item">
+                <a class="nav-link { props.page === CONSTANTS.STORAGE_PAGE ? 'active' : '' }" href="#" onclick="{ props.changepage(CONSTANTS.STORAGE_PAGE) }">
+                    Storage
+                </a>
+            </li>
+            <!-- Company -->
+            <li class="nav-item">
+                <a class="nav-link { props.page === CONSTANTS.COMPANY_PAGE ? 'active' : '' }" href="#" onclick="{ props.changepage(CONSTANTS.COMPANY_PAGE) }">
+                    Company
+                </a>
+            </li>
+            <!-- Members -->
+            <li class="nav-item">
+                <a class="nav-link { props.page === CONSTANTS.MEMBERS_PAGE ? 'active' : '' }" href="#" onclick="{ props.changepage(CONSTANTS.MEMBERS_PAGE) }">
+                    Members
+                </a>
+            </li>
+            <!-- Groups -->
+            <li class="nav-item">
+                <a class="nav-link { props.page === CONSTANTS.GROUPS_PAGE ? 'active' : '' }" href="#" onclick="{ props.changepage(CONSTANTS.GROUPS_PAGE) }">
+                    Groups
+                </a>
+            </li>
+            <!-- Logs -->
+            <li class="nav-item">
+                <a class="nav-link { props.page === CONSTANTS.LOGS_PAGE ? 'active' : '' }" href="#" onclick="{ props.changepage(CONSTANTS.LOGS_PAGE) }">
+                    Logs
+                </a>
+            </li>
+        </ul>
+        <span class="navbar-text p-0">
+            <!-- Log out -->
+            <a class="nav-link" href="#" data-toggle="modal" data-target="#disconnect-modal">
+                Log out
+            </a>
+        </span>
+    </nav>
+
+    <!-- Content -->
+    <div class="container-fluid m-0 p-0">
+        <storagepage if="{ props.page === CONSTANTS.STORAGE_PAGE }" rights="{ parseInt(props.user['accreditation_level']) }"/>
+
+        <companypage if="{ props.page === CONSTANTS.COMPANY_PAGE }" rights="{ parseInt(props.user['accreditation_level']) }"/>
+
+        <memberspage if="{ props.page === CONSTANTS.MEMBERS_PAGE }" changepage="{ props.changepage }" rights="{ parseInt(props.user['accreditation_level']) }" byid="{ props.user['company_user_id'] }"/>
+        <newuserpage if="{ props.page === CONSTANTS.NEW_USER_PAGE }" changepage="{ props.changepage }" rights="{ parseInt(props.user['accreditation_level']) }" byid="{ props.user['company_user_id'] }"/>
+
+        <groupspage if="{ props.page === CONSTANTS.GROUPS_PAGE }" changepage="{ props.changepage }" rights="{ parseInt(props.user['accreditation_level']) }" byid="{ props.user['company_user_id'] }"/>
+        <newgrouppage if="{ props.page === CONSTANTS.NEW_GROUP_PAGE }" changepage="{ props.changepage }"/>
+
+        <logspage if="{ props.page === CONSTANTS.LOGS_PAGE }"/>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS
+        }
+    </script>
+</connectedpages>

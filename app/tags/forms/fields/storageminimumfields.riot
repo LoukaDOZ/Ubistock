@@ -1,0 +1,75 @@
+<!-- Storage minimum fields -->
+<storageminimumfields check="{ check }" getValues="{ getValues }">
+
+    <!-- Minimum applies on -->
+    <label for="storage-apply-select" class="mt-3">Apply on</label>
+    <select id="storage-apply-select" class="custom-select" onchange="{ onApplyChange }">
+        <option value="type" selected="{ applyOn === 'type' }">Type</option>
+        <option value="name" selected="{ applyOn === 'name' }">Name</option>
+    </select>
+
+    <!-- Resource name if applies on name -->
+    <txtinput if="{ applyOn === 'name' }" eid="storage-minimum-name" name="storage-minimum-name" label="Name"
+              value="{ props.values ? props.values.name : '' }" required="{ true }"/>
+    <inputerrormsg show="{ !formValidation.name && applyOn === 'name' }" value="Required field"/>
+
+    <!-- Resource type if applies on type -->
+    <resourcetypeselect if="{ applyOn === 'type' }" eid="storage-minimum-type" name="storage-minimum-type" label="Type"
+                        value="{ props.values ? props.values.type : '' }" required="{ true }"/>
+
+    <!-- Minimum -->
+    <numberinput eid="storage-minimum" name="storage-minimum" label="Minimum quantity" min="1"
+                 value="{ props.values ? props.values.minimum : '' }" required="{ true }"/>
+    <inputerrormsg show="{ !formValidation.minimum}" value="Required field"/>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            applyOn: 'type',
+            //Inputs' validation
+            formValidation: {
+                minimum: true,
+                name: true,
+                type: true
+            },
+            //When tag is mounted
+            onMounted() {
+                //Get inputs
+                this.minimumTag = this.$('#storage-minimum');
+            },
+            onApplyChange(e) {
+                e.preventDefault();
+                this.applyOn = e.target.value;
+                this.update();
+            },
+            //Check inputs' values
+            check() {
+                //Get inputs' values
+                let name = this.applyOn === 'name' ? this.$('#storage-minimum-name').value : '';
+                let minimum = this.minimumTag.value;
+
+                //Check inputs' values
+                this.formValidation.minimum = (minimum);
+                this.formValidation.name = (this.applyOn !== 'name' || name.length > 0);
+
+                //Show or hide input errors
+                this.update();
+                //Returning false if at least one input isn't valid
+                for(let validation of Object.values(this.formValidation))
+                    if(!validation)
+                        return false;
+
+                //All inputs are valid
+                return true;
+            },
+            //Return inputs values
+            getValues() {
+                return {
+                    'minimum': parseInt(this.minimumTag.value),
+                    'name': this.applyOn === 'name' ? this.$('#storage-minimum-name').value : '',
+                    'type': this.applyOn === 'type' ? this.$('#storage-minimum-type').value : ''
+                };
+            }
+        }
+    </script>
+</storageminimumfields>

@@ -1,0 +1,356 @@
+<!-- Company -->
+<companypage>
+    <!-- Title -->
+    <div class="container px-5 pb-0 pt-3 my-0">
+        <h2 class="alert alert-dark d-flex flex-wrap justify-content-between align-items-center }">
+            The company
+
+            <!-- Refresh button -->
+            <button type="button" class="btn btn-outline-dark" onclick="{ getCompanyInfo }">
+                <svg class="bi bi-arrow-clockwise" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M3.17 6.706a5 5 0 0 1 7.103-3.16.5.5 0 1 0 .454-.892A6 6 0 1 0 13.455 5.5a.5.5 0 0 0-.91.417 5 5 0 1 1-9.375.789z"/>
+                    <path fill-rule="evenodd" d="M8.147.146a.5.5 0 0 1 .707 0l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5a.5.5 0 1 1-.707-.708L10.293 3 8.147.854a.5.5 0 0 1 0-.708z"/>
+                </svg>
+                Refresh
+            </button>
+        </h2>
+
+        <!-- Load information error -->
+        <errormsg show="{ error }" value="An error has occurred while loading the page : { error }. Please, try again."/>
+    </div>
+
+    <!-- Content -->
+    <div if="{ !error }" class="container px-5 pb-3 pt-0">
+        <div class="container-fluid p-0 rounded { edit ? 'border border-dark my-3' : '' }" if="{ props.rights === CONSTANTS.SUPER_ADMIN }">
+            <div class="d-flex justify-content-start align-items-center">
+                <!-- Edit icon -->
+                <a href="" class="text-decoration-none nav-link text-dark m-3 p-0" onclick="{ onEdit }">
+                    <!-- Not editing -->
+                    <svg if="{ !edit }" class="bi bi-pencil" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M11.293 1.293a1 1 0 0 1 1.414 0l2 2a1 1 0 0 1 0 1.414l-9 9a1 1 0 0 1-.39.242l-3 1a1 1 0 0 1-1.266-1.265l1-3a1 1 0 0 1 .242-.391l9-9zM12 2l2 2-9 9-3 1 1-3 9-9z"/>
+                        <path fill-rule="evenodd" d="M12.146 6.354l-2.5-2.5.708-.708 2.5 2.5-.707.708zM3 10v.5a.5.5 0 0 0 .5.5H4v.5a.5.5 0 0 0 .5.5H5v.5a.5.5 0 0 0 .5.5H6v-1.5a.5.5 0 0 0-.5-.5H5v-.5a.5.5 0 0 0-.5-.5H3z"/>
+                    </svg>
+                    <!-- Editing -->
+                    <svg if="{ edit }" class="bi bi-x-circle" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
+                        <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Edit form -->
+            <form id="collapse-edit-company" class="form-group container collapse" onsubmit="{ onSubmitEdit }" if="{ edit }">
+                <div class="mb-3">
+                    <span class="text-primary">*</span> required fields
+                </div>
+                <!-- Edit form error -->
+                <errormsg show="{ editError }" value="An error has occurred : { editError }. Please, try again."/>
+
+                <!-- Title -->
+                <h2 class="alert alert-dark mb-0">Edit the company</h2>
+
+                <!-- Fields -->
+                <companyfields values="{ infos ? { name: infos.company['company_name'] } : {} }"/>
+
+                <!-- Submit button -->
+                <div class="container-fluid d-flex justify-content-center align-items-center mt-3">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-responsive rounded">
+            <table class="table table-bordered table-hover">
+                <tbody>
+                    <!-- Company -->
+                    <tr class="thead-dark">
+                        <th colspan="2" class="text-center">
+                            Company
+                        </th>
+                    </tr>
+                    <!-- Name -->
+                    <tr>
+                        <th>
+                            Name
+                        </th>
+                        <td>
+                            { infos ? infos.company['company_name'] : '' }
+                        </td>
+                    </tr>
+
+                    <!-- Members -->
+                    <tr class="thead-dark">
+                        <th colspan="2" class="text-center">
+                            Members
+                        </th>
+                    </tr>
+                    <!-- Total -->
+                    <tr>
+                        <th>
+                            Total
+                        </th>
+                        <td>
+                            { infos ? membersCount.total : '' }
+                        </td>
+                    </tr>
+                    <!-- Super admin count -->
+                    <tr>
+                        <th>
+                            Super Administrators
+                        </th>
+                        <td>
+                            { infos ? membersCount[CONSTANTS.SUPER_ADMIN] : '' }
+                        </td>
+                    </tr>
+                    <!-- Admin count -->
+                    <tr>
+                        <th>
+                            Administrators
+                        </th>
+                        <td>
+                            { infos ? membersCount[CONSTANTS.ADMIN] : '' }
+                        </td>
+                    </tr>
+                    <!-- Moderator count -->
+                    <tr>
+                        <th>
+                            Moderators
+                        </th>
+                        <td>
+                            { infos ? membersCount[CONSTANTS.MODERATOR] : '' }
+                        </td>
+                    </tr>
+                    <!-- Collaborator count -->
+                    <tr>
+                        <th>
+                            Collaborators
+                        </th>
+                        <td>
+                            { infos ? membersCount[CONSTANTS.COLLABORATOR] : '' }
+                        </td>
+                    </tr>
+                    <!-- Visitor count -->
+                    <tr>
+                        <th>
+                            Visitors
+                        </th>
+                        <td>
+                            { infos ? membersCount[CONSTANTS.VISITOR] : '' }
+                        </td>
+                    </tr>
+
+                    <!-- groups -->
+                    <tr class="thead-dark">
+                        <th colspan="2" class="text-center">
+                            Groups
+                        </th>
+                    </tr>
+                    <!-- Total -->
+                    <tr>
+                        <th>
+                            Total
+                        </th>
+                        <td>
+                            { infos ? infos['company_groups'].total : '' }
+                        </td>
+                    </tr>
+
+                    <!-- Storage -->
+                    <tr class="thead-dark">
+                        <th colspan="2" class="text-center">
+                            Storage
+                        </th>
+                    </tr>
+                    <!-- Total -->
+                    <tr>
+                        <th>
+                            Total
+                        </th>
+                        <td>
+                            { infos ? infos.storages.total : '' }
+                        </td>
+                    </tr>
+
+                    <!-- Resources -->
+                    <tr class="thead-dark">
+                        <th colspan="2" class="text-center">
+                            Resources
+                        </th>
+                    </tr>
+                    <!-- Total -->
+                    <tr>
+                        <th>
+                            Total
+                        </th>
+                        <td>
+                            { infos ? resourcesCount.total : '' }
+                        </td>
+                    </tr>
+                    <!-- Food count -->
+                    <tr>
+                        <th>
+                            { CONSTANTS.resourceTypeToString(CONSTANTS.FOOD) }
+                        </th>
+                        <td>
+                            { infos ? resourcesCount[CONSTANTS.FOOD] : '' }
+                        </td>
+                    </tr>
+                    <!-- Rax material count -->
+                    <tr>
+                        <th>
+                            { CONSTANTS.resourceTypeToString(CONSTANTS.RAW_MATERIAL) }
+                        </th>
+                        <td>
+                            { infos ? resourcesCount[CONSTANTS.RAW_MATERIAL] : '' }
+                        </td>
+                    </tr>
+                    <!-- Hardware count -->
+                    <tr>
+                        <th>
+                            { CONSTANTS.resourceTypeToString(CONSTANTS.HARDWARE) }
+                        </th>
+                        <td>
+                            { infos ? resourcesCount[CONSTANTS.HARDWARE] : '' }
+                        </td>
+                    </tr>
+                    <!-- Software count -->
+                    <tr>
+                        <th>
+                            { CONSTANTS.resourceTypeToString(CONSTANTS.SOFTWARE) }
+                        </th>
+                        <td>
+                            { infos ? resourcesCount[CONSTANTS.SOFTWARE] : '' }
+                        </td>
+                    </tr>
+                    <!-- Office supply count -->
+                    <tr>
+                        <th>
+                            { CONSTANTS.resourceTypeToString(CONSTANTS.OFFICE_SUPPLY) }
+                        </th>
+                        <td>
+                            { infos ? resourcesCount[CONSTANTS.OFFICE_SUPPLY] : '' }
+                        </td>
+                    </tr>
+                    <!-- Tool count -->
+                    <tr>
+                        <th>
+                            { CONSTANTS.resourceTypeToString(CONSTANTS.TOOL) }
+                        </th>
+                        <td>
+                            { infos ? resourcesCount[CONSTANTS.TOOL] : '' }
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Information
+            infos: null,
+            //Is editing
+            edit: false,
+            //Edit error
+            editError: "",
+            //Load information error
+            error: "",
+            //Members count
+            membersCount: {
+                total: 0
+            },
+            //Resources count
+            resourcesCount: {
+                total: 0
+            },
+            //Before tag is mounted
+            onBeforeMount() {
+                this.getCompanyInfo();
+            },
+            //Submit edit
+            onSubmitEdit(e) {
+                e.preventDefault();
+                //Get fields
+                let companyFields = this.$('companyfields');
+
+                //Check fields
+                if(companyFields.check()) {
+                    //Edit company
+                    this.editCompany(companyFields.getValues());
+                }
+            },
+            //Edit company
+            async editCompany(companyValues) {
+                //Requesting
+                let res = await makeServiceAjax().renameCompany(
+                    companyValues.name
+                );
+
+                if(res.worked) {
+                    //If worked
+                    this.editError = "";
+                    //Update information
+                    this.getCompanyInfo();
+                    this.onEdit();
+                } else {
+                    //If didn't work
+                    this.editError = res.content;
+                    this.update();
+                }
+            },
+            //Get company information
+            async getCompanyInfo(e) {
+                if(e) e.preventDefault();
+
+                //Requesting
+                let res = await makeServiceAjax().getCompanyInfo();
+
+                if(res.worked) {
+                    //If worked
+                    this.error = "";
+                    this.infos = res.content;
+
+                    //Set members count
+                    this.membersCount.total = 0;
+                    this.membersCount[CONSTANTS.SUPER_ADMIN] = 0;
+                    this.membersCount[CONSTANTS.ADMIN] = 0;
+                    this.membersCount[CONSTANTS.MODERATOR] = 0;
+                    this.membersCount[CONSTANTS.COLLABORATOR] = 0;
+                    this.membersCount[CONSTANTS.VISITOR] = 0;
+                    for(let i of Object.values(this.infos['company_users'])) {
+                        this.membersCount.total += parseInt(i.total);
+                        this.membersCount[parseInt(i['accreditation_level'])] = i.total;
+                    }
+
+                    //Set resources count
+                    this.resourcesCount.total = 0;
+                    this.resourcesCount[CONSTANTS.FOOD] = 0;
+                    this.resourcesCount[CONSTANTS.RAW_MATERIAL] = 0;
+                    this.resourcesCount[CONSTANTS.HARDWARE] = 0;
+                    this.resourcesCount[CONSTANTS.SOFTWARE] = 0;
+                    this.resourcesCount[CONSTANTS.OFFICE_SUPPLY] = 0;
+                    this.resourcesCount[CONSTANTS.TOOL] = 0;
+                    for(let i of Object.values(this.infos['resources'])) {
+                        this.resourcesCount.total += parseInt(i.total);
+                        this.resourcesCount[i['resource_type']] = i.total;
+                    }
+                    this.update();
+                } else {
+                    //If didn't work
+                    this.error = res.content;
+                    this.update();
+                }
+            },
+            //Show edit form
+            onEdit(e) {
+                if(e) e.preventDefault();
+                //Toggle
+                this.edit = !this.edit;
+                this.update();
+                $("#collapse-edit-company").collapse('toggle');
+            }
+        }
+    </script>
+</companypage>

@@ -1,0 +1,219 @@
+<!-- Storage explorer -->
+<storageexplorer>
+    <!-- Modal -->
+    <div id="storage-explorer-modal" data-backdrop="static" class="modal fade">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <!-- Modal head -->
+                <div class="modal-header">
+                    <h5 class="modal-title font-weight-bold">Storage explorer</h5>
+                    <!-- Close button -->
+                    <button type="button" class="close" onclick="{ props.onchoose(null) }">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body" style="overflow: scroll;">
+                    <!-- Error when loading storage -->
+                    <errormsg show="{ contentError }" value="An error has occurred while loading storage : { contentError }. Please, try again."/>
+
+                    <!-- Storage display -->
+                    <ul if="{ currentContent && !contentError }" class="list-group p-0">
+                        <!-- Each parent -->
+                        <li each="{ (breadcrumb,index) in currentContent.breadcrumb }" class="list-group-item border-0 rounded-0 text-left p-0">
+                            <storageexplorerstorage storage="{ breadcrumb }" select="{ onSelect(breadcrumb) }"
+                                                    close="{ onClose(currentContent) }" opened="{ true }" margin="{ index }"
+                                                    selected="{ selection && selection['storage_id'] === breadcrumb['storage_id'] }"/>
+                        </li>
+
+                        <!-- Each storage children of the opened storage -->
+                        <li each="{ storage in currentContent.storages }" class="list-group-item border-0 rounded-0 text-left p-0">
+                            <storageexplorerstorage storage="{ storage }" open="{ onOpen(storage) }" close="{ onClose(storage) }"
+                                                    select="{ onSelect(storage) }"
+                                                    selected="{ selection && selection['storage_id'] === storage['storage_id'] }"
+                                                    opened="{ currentContent['storage_id'] === storage['storage_id'] }"
+                                                    margin="{ currentContent.breadcrumb.length }"/>
+                        </li>
+
+                        <!-- Each resources children of the opened storage -->
+                        <li each="{ resource in currentContent.resources }" class="list-group-item border-0 rounded-0 text-left p-0">
+                            <storageexplorerresource resource="{ resource }" margin="{ currentContent.breadcrumb.length }"/>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer d-flex flex-wrap justify-content-between" if="{ currentContent && !contentError }">
+                    <div>
+                        <!-- Open selected storage -->
+                        <button type="button" class="btn btn-outline-dark mr-3" onclick="{ onOpen(selection) }"
+                                if="{ selection && selection['storage_id'] !== currentContent['storage_id'] }">
+                            <svg class="bi bi-reply" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M9.502 5.013a.144.144 0 0 0-.202.134V6.3a.5.5 0 0 1-.5.5c-.667 0-2.013.005-3.3.822-.984.624-1.99 1.76-2.595 3.876C3.925 10.515 5.09 9.982 6.11 9.7a8.741 8.741 0 0 1 1.921-.306 7.403 7.403 0 0 1 .798.008h.013l.005.001h.001L8.8 9.9l.05-.498a.5.5 0 0 1 .45.498v1.153c0 .108.11.176.202.134l3.984-2.933a.494.494 0 0 1 .042-.028.147.147 0 0 0 0-.252.494.494 0 0 1-.042-.028L9.502 5.013zM8.3 10.386a7.745 7.745 0 0 0-1.923.277c-1.326.368-2.896 1.201-3.94 3.08a.5.5 0 0 1-.933-.305c.464-3.71 1.886-5.662 3.46-6.66 1.245-.79 2.527-.942 3.336-.971v-.66a1.144 1.144 0 0 1 1.767-.96l3.994 2.94a1.147 1.147 0 0 1 0 1.946l-3.994 2.94a1.144 1.144 0 0 1-1.767-.96v-.667z"/>
+                            </svg>
+                        </button>
+                        <!-- Refresh opened storage content -->
+                        <button type="button" class="btn btn-outline-dark mr-3" onclick="{ onOpen(currentContent) }">
+                            <svg width="1.5em" height="1.5em" viewBox="0 0 16 16" class="bi bi-arrow-clockwise" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M3.17 6.706a5 5 0 0 1 7.103-3.16.5.5 0 1 0 .454-.892A6 6 0 1 0 13.455 5.5a.5.5 0 0 0-.91.417 5 5 0 1 1-9.375.789z"/>
+                                <path fill-rule="evenodd" d="M8.147.146a.5.5 0 0 1 .707 0l2.5 2.5a.5.5 0 0 1 0 .708l-2.5 2.5a.5.5 0 1 1-.707-.708L10.293 3 8.147.854a.5.5 0 0 1 0-.708z"/>
+                            </svg>
+                        </button>
+                        <!-- Back to the parent storage -->
+                        <button type="button" class="btn btn-outline-dark mr-3" onclick="{ onClose(currentContent) }">
+                            <svg class="bi bi-arrow-90deg-up" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M2.646 6.854a.5.5 0 0 0 .708 0L6 4.207l2.646 2.647a.5.5 0 1 0 .708-.708l-3-3a.5.5 0 0 0-.708 0l-3 3a.5.5 0 0 0 0 .708z"/>
+                                <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 0-.5.5v6.5A2.5 2.5 0 0 0 8 13h5.5a.5.5 0 0 0 0-1H8a1.5 1.5 0 0 1-1.5-1.5V4a.5.5 0 0 0-.5-.5z"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Choose or close button -->
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close"
+                            onclick="{ props.onchoose((props.see ? null : selection)) }">
+                        { props.see ? 'Close' : 'Choose' }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Opened storage
+            currentContent: null,
+            //Loading content error
+            contentError: "",
+            //Selected storage
+            selection: null,
+            //Is an update from himself
+            internalUpdate: false,
+            //When tag is mounted
+            onMounted() {
+                if(this.props.show)
+                    //Show if parent says to
+                    $('#storage-explorer-modal').modal('show');
+                else
+                    //Hide if parent says to
+                    $('#storage-explorer-modal').modal('hide');
+
+                //Show available storage
+                this.changeStorage();
+            },
+            //When tag is updated
+            onUpdated() {
+                if(!this.internalUpdate) {
+                    //If parent update
+                    if (this.props.show)
+                        //Show if parent says to
+                        $('#storage-explorer-modal').modal('show');
+                    else
+                        //Hide if parent says to
+                        $('#storage-explorer-modal').modal('hide');
+
+                    if(this.props.see)
+                        //Show storage content if needed to see a storage
+                        this.changeStorage(this.props.see);
+                    else
+                        //Show available storage if needed to select a storage
+                        this.changeStorage();
+                } else
+                    this.internalUpdate = false;
+            },
+            //Get storage content
+            async changeStorage(storage){
+                this.contentError = "";
+
+                //Get available storage if storage argument or its id is undefined, else, get storage content of storage given in argument
+                let res = (storage && storage['storage_id']) ? await makeServiceAjax().getStorageContent(storage['storage_id']) :
+                    await makeServiceAjax().getAvailableStorages();
+
+                if(res.worked) {
+                    //Current content shows available storage if storage argument or its id is undefined,
+                    //Else, shows opened storage content is the result
+                    this.currentContent = (storage && storage['storage_id']) ? res.content : {
+                        storages: res.content,
+                        resources: {},
+                        breadcrumb: {},
+                        //null means to show available storage
+                        'storage_id': null
+                    };
+
+                    //Convert to array and sort storage name by alphabetic order
+                    this.currentContent.storages = Object.values(this.currentContent.storages).sort(function (a, b) {
+                        return a['storage_name'].localeCompare(b['storage_name']);
+                    });
+                    //Convert to array and sort resource name by alphabetic order
+                    this.currentContent.resources = Object.values(this.currentContent.resources).sort(function (a, b) {
+                        return a['resource_name'].localeCompare(b['resource_name']);
+                    });
+                    //Convert breadcrumbs to array
+                    this.currentContent.breadcrumb = Object.values(this.currentContent.breadcrumb);
+
+                    //Each child resource
+                    for(let i of this.currentContent.resources) {
+                        //Get more information (get the type) for each resources
+                        await this.getProperties(i);
+
+                        //Stops if error when getting resource's information
+                        if(this.contentError)
+                            break;
+                    }
+                } else {
+                    //If error
+                    this.contentError = res.content;
+                    this.currentContent = null;
+                }
+
+                //Update from himself
+                this.internalUpdate = true;
+                this.update();
+            },
+            //Get resource information
+            async getProperties(resource) {
+                //Requesting
+                let res = await makeServiceAjax().getResourceById(resource['resource_id']);
+
+                if(res.worked) {
+                    //Merge new and previous information
+                    resource = Object.assign(resource,res.content);
+                } else {
+                    //If error
+                    this.contentError = res.content;
+                    this.currentContent = null;
+                }
+            },
+            //Selected a storage
+            onSelect(storage) {
+                return (e)=> {
+                    e.preventDefault();
+                    //Set selected
+                    this.selection = storage;
+                    //Update from himself
+                    this.internalUpdate = true;
+                    this.update();
+                };
+            },
+            //Open a storage
+            onOpen(storage) {
+                return (e)=> {
+                    e.preventDefault();
+                    //Show storage content
+                    this.changeStorage(storage);
+                };
+            },
+            //Close storage
+            onClose(storage) {
+                return (e)=> {
+                    e.preventDefault();
+                    //Deselect
+                    this.selection = null;
+                    //Back to the parent storage
+                    this.changeStorage(storage.breadcrumb[storage.breadcrumb.length - 2]);
+                };
+            }
+        }
+    </script>
+</storageexplorer>

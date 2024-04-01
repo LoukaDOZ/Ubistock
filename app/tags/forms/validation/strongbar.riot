@@ -1,0 +1,70 @@
+<!-- Progress bar for password strength -->
+<strongbar>
+    <div class="container-fluid m-0 p-0 d-flex align-items-center">
+        <small class="mr-3 { strong < 30 ? 'text-danger' : (strong < 60 ? 'text-warning' : 'text-success') }">
+            { strong < 30 ? 'Weak' : (strong < 60 ? 'Average' : 'Strong') }
+        </small>
+        <div class="progress mt-1 w-75" style="height: 0.5em;">
+            <div class="progress-bar { strong < 30 ? 'bg-danger' : (strong < 60 ? 'bg-warning' : 'bg-success') }"
+                 style="width: { strong }%;"></div>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Strong value
+            strong: 0,
+            //When tag is mounted
+            onMounted() {
+                this.update();
+            },
+            //Before tag updates
+            onBeforeUpdate() {
+                //Get password value
+                let value = this.props.value;
+                //Password length
+                let valueLength = value.length;
+                //Amount of lower cases
+                let lowers = regexCount(value, new RegExp(CONSTANTS.LOWER_REGEX + '+'));
+                //Amount of upper cases
+                let uppers = regexCount(value, new RegExp(CONSTANTS.UPPER_REGEX + '+'));
+                //Amount of number
+                let numbers = regexCount(value, new RegExp(CONSTANTS.NUMBER_REGEX + '+'));
+                //Amount of symbol
+                let symbols = regexCount(value, new RegExp(CONSTANTS.SYMBOL_REGEX + '+'));
+                //Reset strong value
+                this.strong = 0;
+
+                //All tests are copied from http://www.passwordmeter.com/
+                //Also see assets/js/passwordStrengthFunctions.js
+
+                //Bonus
+                //Length
+                this.strong += valueLength * 3;
+                //Amount of lower cases
+                this.strong += (valueLength - uppers) * 2;
+                //Amount of upper cases
+                this.strong += (valueLength - lowers) * 2;
+                //Amount of number
+                this.strong += numbers * 4;
+                //Amount of symbol
+                this.strong += symbols * 5;
+
+                //Penalty
+                //Only lower case or only upper case or only numbers or only symbol
+                if(new RegExp('^' + CONSTANTS.LOWER_REGEX + '+$').test(value)
+                    || new RegExp('^' + CONSTANTS.UPPER_REGEX + '+$').test(value)
+                    || new RegExp('^' + CONSTANTS.NUMBER_REGEX + '+$').test(value)
+                    || new RegExp('^' + CONSTANTS.SYMBOL_REGEX + '+$').test(value))
+                    this.strong -= valueLength;
+                //Amount letter or number sequences
+                this.strong -= sequenceCount(value) * 3;
+                //Amount of consecutive regex
+                this.strong -= consecutiveCount(value) * 2;
+                //Amount of repetitions
+                this.strong -= repeatCount(value);
+            }
+        }
+    </script>
+</strongbar>

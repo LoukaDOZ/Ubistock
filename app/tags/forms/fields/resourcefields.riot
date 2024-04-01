@@ -1,0 +1,50 @@
+<!-- Resource fields -->
+<resourcefields check="{ check }" getValues="{ getValues }">
+    <!-- Resource name -->
+    <txtinput eid="resource-name" name="resource-name" label="Name" value="{ props.values ? props.values.name : '' }" required="{ true }"/>
+    <inputerrormsg show="{ !formValidation.name }" value="Required field"/>
+
+    <!-- Resource type -->
+    <resourcetypeselect eid="resource-type" name="resource-type" label="Type" value="{ props.values ? props.values.type : '' }" required="{ true }"/>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Inputs' validation
+            formValidation: {
+                name: true
+            },
+            //When tag is mounted
+            onMounted() {
+                //Get inputs
+                this.nameTag = this.$('#resource-name');
+                this.typeTag = this.$('#resource-type');
+            },
+            //Check inputs' values
+            check() {
+                //Get inputs' values
+                let name = this.nameTag.value;
+
+                //Check inputs' values
+                this.formValidation.name = (name.length > 0);
+
+                //Show or hide input errors
+                this.update();
+                //Returning false if at least one input isn't valid
+                for(let validation of Object.values(this.formValidation))
+                    if(!validation)
+                        return false;
+
+                //All inputs are valid
+                return true;
+            },
+            //Return inputs values
+            getValues() {
+                return {
+                    'name': this.nameTag.value,
+                    'type': this.typeTag.value
+                };
+            }
+        }
+    </script>
+</resourcefields>

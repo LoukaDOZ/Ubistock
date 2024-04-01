@@ -1,0 +1,65 @@
+<!-- What rights level allows to -->
+<rightsinfo>
+    <div class="alert alert-info mb-0">
+        <div class="font-weight-bolder">
+            Rights :
+        </div>
+
+        <!-- Super Administrator -->
+        <div if="{ props.rights <= CONSTANTS.SUPER_ADMIN }">
+            <div>
+                Edit super administrator's account information
+            </div>
+            <div>
+                Edit company information
+            </div>
+        </div>
+
+        <!-- Administrator -->
+        <div if="{ props.rights <= CONSTANTS.ADMIN }">
+            <div>
+                Automatically belong to every groups
+            </div>
+            <div>
+                Create, delete and edit groups
+            </div>
+            <div>
+                Bind and unbind storage and users to groups (apply on visitors, collaborators { props.rights === CONSTANTS.ADMIN ? 'and moderators only' : ', moderators and administrators' })
+            </div>
+            <div>
+                Create, delete, edit, promote and demote users (apply on visitors, collaborators { props.rights === CONSTANTS.ADMIN ? 'and moderators only' : ', moderators and administrators' })
+            </div>
+        </div>
+
+        <!-- Moderator -->
+        <div if="{ props.rights <= CONSTANTS.MODERATOR }">
+            <div>
+                Create, delete, rename, move and copy storage and resources
+            </div>
+            <div>
+                Add and delete minimums on resources and storage
+            </div>
+        </div>
+
+        <!-- Collaborator -->
+        <div if="{ props.rights <= CONSTANTS.COLLABORATOR }">
+            <div>
+                Increase and decrease the amount of resources
+            </div>
+            <div>
+                See all others resources' information
+            </div>
+        </div>
+
+        <!-- Visitor -->
+        <div>
+            See the name, type and the amount of resources
+        </div>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS
+        }
+    </script>
+</rightsinfo>

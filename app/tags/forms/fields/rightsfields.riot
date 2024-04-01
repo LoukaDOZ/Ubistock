@@ -1,0 +1,45 @@
+<!-- User rights level fields -->
+<rightsfields check="{ check }" getValues="{ getValues }">
+    <!-- Rights level -->
+    <rightsselect eid="rights-level" min="{ props.min }" max="{ props.max }" value="{ props.values ? props.values.rights : '' }"
+                  name="rights-level" label="Rights level" required="{ true }" changetrigger="{ props.changetrigger }"/>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Inputs' validation
+            formValidation: {
+                rights: true
+            },
+            //When tag is mounted
+            onMounted() {
+                //Get inputs
+                this.rightsTag = this.$('#rights-level');
+            },
+            //Check inputs' values
+            check() {
+                //Get inputs' values
+                let rights = this.rightsTag.value;
+
+                //Check inputs' values
+                this.formValidation.rights = (rights.length > 0);
+
+                //Show or hide input errors
+                this.update();
+                //Returning false if at least one input isn't valid
+                for(let validation of Object.values(this.formValidation))
+                    if(!validation)
+                        return false;
+
+                //All inputs are valid
+                return true;
+            },
+            //Return inputs values
+            getValues() {
+                return {
+                    'rights': this.rightsTag.value
+                };
+            }
+        }
+    </script>
+</rightsfields>

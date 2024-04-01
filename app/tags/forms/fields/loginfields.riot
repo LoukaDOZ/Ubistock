@@ -1,0 +1,57 @@
+<!-- Login fields -->
+<loginfields check="{ check }" getValues="{ getValues }">
+    <!-- Email -->
+    <txtinput eid="login-email" label="Email" name="login-email" value="{ props.values ? props.values.email : '' }" required="{ true }"/>
+    <inputerrormsg show="{ !formValidation.email }" value="Required field"/>
+    <inputerrormsg show="{ !formValidation.emailRegex }" value="Invalid email"/>
+
+    <!-- Password -->
+    <pswdinput eid="login-password" label="Password" name="login-password" value="{ props.values ? props.values.password : '' }" required="{ true }"/>
+    <inputerrormsg show="{ !formValidation.password }" value="Required field"/>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Inputs' validation
+            formValidation: {
+                email: true,
+                emailRegex: true,
+                password: true
+            },
+            //When tag is mounted
+            onMounted() {
+                //Get inputs
+                this.emailTag = this.$('#login-email');
+                this.passwordTag = this.$('#login-password');
+            },
+            //Check inputs' values
+            check() {
+                //Get inputs' values
+                let email = this.emailTag.value;
+                let password = this.passwordTag.value;
+
+                //Check inputs' values
+                this.formValidation.email = (email.length > 0);
+                this.formValidation.emailRegex = new RegExp(CONSTANTS.EMAIL_REGEX).test(email);
+                this.formValidation.password = (password.length > 0);
+
+                //Show or hide input errors
+                this.update();
+                //Returning false if at least one input isn't valid
+                for(let validation of Object.values(this.formValidation))
+                    if(!validation)
+                        return false;
+
+                //All inputs are valid
+                return true;
+            },
+            //Return inputs values
+            getValues() {
+                return {
+                    'email': this.emailTag.value,
+                    'password': this.passwordTag.value
+                };
+            }
+        }
+    </script>
+</loginfields>

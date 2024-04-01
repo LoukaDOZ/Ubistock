@@ -1,0 +1,22 @@
+/* Stock element style like file system */
+
+/* Base style */
+.stock-element {
+    background: rgba(255,255,255,0.0);
+    border: rgba(255,255,255,0.0) solid 1px;
+}
+/* Hovered style */
+.stock-element:not(.selected):hover {
+    background: rgba(100,100,100,0.1);
+    border: rgba(100,100,100,0.3) solid 1px;
+}
+/* Selected style */
+.stock-element.stock-element-selected {
+    background: rgba(0,100,255,0.1);
+    border: rgba(0,100,255,0.3) solid 1px;
+}
+/* Selected and hovered style */
+.stock-element.stock-element-selected:hover {
+    background: rgba(0,100,255,0.2);
+    border: rgba(0,100,255,0.4) solid 1px;
+}

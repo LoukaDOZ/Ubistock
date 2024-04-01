@@ -1,0 +1,29 @@
+<!-- Input for a number -->
+<numberinput>
+    <!-- Label -->
+    <label if="{ props.label }" for="{ props.eid }" class="mt-3">{ props.label }
+        <span if="{ props.required }" class="text-primary"> *</span>
+    </label>
+
+    <!-- Input -->
+    <input id="{ props.eid }" class="form-control { !props.label ? 'mt-3' : ''}" value="{ props.value }"
+           type="number" name="{ props.name }" min="{ props.min }" oninput="{ onInput }">
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //When user writes a value
+            onInput(e) {
+                e.preventDefault();
+                //Get value
+                let value = e.target.value;
+
+                //If the value is not an number, the value is an empty string
+                //If the value is not a number or if it is inferior to the minimum
+                if(!value || parseInt(value) < parseInt(this.props.min))
+                    //Set value to the minimum
+                    e.target.value = parseInt(this.props.min);
+            },
+        }
+    </script>
+</numberinput>

@@ -1,0 +1,47 @@
+<!-- Quantity fields -->
+<quantityfields check="{ check }" getValues="{ getValues }">
+
+    <!-- Quantity -->
+    <numberinput eid="quantity-value" name="quantity-value" label="Minimum quantity" min="0"
+                 value="{ props.values ? props.values.quantity : '' }" required="{ true }"/>
+    <inputerrormsg show="{ !formValidation.quantity }" value="Required field"/>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Inputs' validation
+            formValidation: {
+                quantity: true
+            },
+            //When tag is mounted
+            onMounted() {
+                //Get inputs
+                this.quantityTag = this.$('#quantity-value');
+            },
+            //Check inputs' values
+            check() {
+                //Get inputs' values
+                let quantity = this.quantityTag.value;
+
+                //Check inputs' values
+                this.formValidation.quantity = (quantity);
+
+                //Show or hide input errors
+                this.update();
+                //Returning false if at least one input isn't valid
+                for(let validation of Object.values(this.formValidation))
+                    if(!validation)
+                        return false;
+
+                //All inputs are valid
+                return true;
+            },
+            //Return inputs values
+            getValues() {
+                return {
+                    'quantity': parseInt(this.quantityTag.value)
+                };
+            }
+        }
+    </script>
+</quantityfields>

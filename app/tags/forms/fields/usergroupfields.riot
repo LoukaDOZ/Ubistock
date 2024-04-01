@@ -1,0 +1,103 @@
+<!-- User belonging group fields -->
+<usergroupfields check="{ check }" getValues="{ getValues }">
+    <!-- Group -->
+    <groupselect eid="user-group" name="user-group" label="Group" required="{ true }"
+                 groups="{ groups }" allowadd="{ props.allowadd }" refresh="{ getGroups }" value="{ props.values ? props.values.selected : '' }"/>
+    <inputerrormsg show="{ !formValidation.group }" value="Required field"/>
+
+    <!-- Loading groups error -->
+    <div class="mt-3"></div>
+    <errormsg show="{ error }" value="An error has occurred while loading groups : { error }. Please, try again."/>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Available groups
+            groups: [],
+            //Error while getting available groups
+            error: "",
+            //Don't request when updating
+            alreadyRequested: false,
+            //Don't reset group select when updated
+            checkForm: false,
+            //Inputs' validation
+            formValidation: {
+                group: true
+            },
+            //Before tag is mounted
+            onBeforeMount() {
+                //Get available groups
+                this.getGroups();
+            },
+            //Before tag updates
+            onBeforeUpdate() {
+                if(!this.alreadyRequested)
+                    //Update group list if not already done
+                    this.getGroups();
+                else
+                    this.alreadyRequested = false;
+            },
+            //When tag is mounted
+            onMounted() {
+                //Get inputs
+                this.userGroupTag = this.$('groupselect');
+            },
+            //When tag is updated
+            onUpdated() {
+                if(!this.checkForm)
+                    //Reset group select if not an update from check() function
+                    this.userGroupTag.reset();
+                else
+                    this.checkForm = false;
+            },
+            //Check inputs' values
+            check() {
+                //Get inputs' values
+                let userGroup = this.userGroupTag.getValues();
+
+                //Check inputs' values
+                this.formValidation.group = (userGroup.length > 0);
+
+                //Don't reset group select
+                this.checkForm = true;
+                //Show or hide input errors
+                this.update();
+                //Returning false if at least one input isn't valid
+                for(let validation of Object.values(this.formValidation))
+                    if(!validation)
+                        return false;
+
+                //All inputs are valid
+                return true;
+            },
+            //Return inputs values
+            getValues() {
+                return {
+                    'groups': this.userGroupTag.getValues()
+                };
+            },
+            //Get available groups
+            async getGroups(e) {
+                if(e) e.preventDefault();
+
+                //Requesting
+                let res = await makeServiceAjax().getGroupsOf(this.props.byid);
+
+                if(res.worked) {
+                    //If worked
+                    this.error = "";
+                    this.groups = Object.values(res.content);
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                } else {
+                    //If didn't worked
+                    this.error = res.content;
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                }
+            }
+        }
+    </script>
+</usergroupfields>

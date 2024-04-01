@@ -1,0 +1,270 @@
+<!-- Group information -->
+<groupinfo>
+    <!-- Information -->
+    <div class="{ props.group.toggle ? 'border border-secondary rounded' : '' }">
+        <!-- Head -->
+        <div class="row m-0 card-header" onclick="{ props.togglehandler }" style="cursor: pointer;">
+            <div class="col-9 col-sm-10 col-lg-11">
+                <div class="row">
+                    <!-- Name -->
+                    <div class="col">
+                        { props.group['company_group_name'] }
+                    </div>
+                    <!-- Error -->
+                    <div if="{ error }" class="col text-danger">
+                        An error has occurred
+                    </div>
+                    <!-- Members count -->
+                    <div if="{ infos && !error }" class="col">
+                        { Object.values(infos.members).length } members
+                    </div>
+                    <!-- Storage count -->
+                    <div if="{ infos && !error }" class="col">
+                        { Object.values(infos.storages).length } storage
+                    </div>
+                </div>
+            </div>
+            <!-- Closed/Opened icon -->
+            <div class="col-3 col-sm-2 col-lg-1 d-flex justify-content-center align-items-center">
+                <!-- Closed -->
+                <svg if="{ !props.group.toggle }" class="bi bi-caret-down-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
+                </svg>
+                <!-- Opened -->
+                <svg if="{ props.group.toggle }" class="bi bi-caret-up-fill" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M7.247 4.86l-4.796 5.481c-.566.647-.106 1.659.753 1.659h9.592a1 1 0 0 0 .753-1.659l-4.796-5.48a1 1 0 0 0-1.506 0z"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Body. Shown when toggle is true -->
+        <div id="collapse-group-{ props.group['company_group_id'] }" class="container-fluid { props.editable ? '' : 'mt-3' } collapse">
+            <div class="mt-3"></div>
+            <!-- Load information error -->
+            <errormsg show="{ error }" value="An error has occurred while loading information : { error }. Please, try again."/>
+
+            <!-- Edit icons -->
+            <div class="d-flex align-items-center justify-content-end" if="{ props.editable && infos && !error }">
+                <!-- Edit icon -->
+                <a href="" class="text-decoration-none nav-link text-dark m-3 p-0" onclick="{ onEdit }">
+                    <!-- Not editing -->
+                    <svg if="{ !edit }" class="bi bi-pencil" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M11.293 1.293a1 1 0 0 1 1.414 0l2 2a1 1 0 0 1 0 1.414l-9 9a1 1 0 0 1-.39.242l-3 1a1 1 0 0 1-1.266-1.265l1-3a1 1 0 0 1 .242-.391l9-9zM12 2l2 2-9 9-3 1 1-3 9-9z"/>
+                        <path fill-rule="evenodd" d="M12.146 6.354l-2.5-2.5.708-.708 2.5 2.5-.707.708zM3 10v.5a.5.5 0 0 0 .5.5H4v.5a.5.5 0 0 0 .5.5H5v.5a.5.5 0 0 0 .5.5H6v-1.5a.5.5 0 0 0-.5-.5H5v-.5a.5.5 0 0 0-.5-.5H3z"/>
+                    </svg>
+                    <!-- Editing -->
+                    <svg if="{ edit }" class="bi bi-x-circle" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
+                        <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
+                    </svg>
+                </a>
+
+                <!-- Delete icon -->
+                <a href="" class="text-decoration-none nav-link text-danger m-3 p-0" onclick="{ props.deletehandler }">
+                    <svg class="bi bi-trash" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                        <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                    </svg>
+                </a>
+            </div>
+
+            <div if="{ !edit && infos }" class="row">
+                <div class="col-md-12 col-lg-6 mb-3">
+                    <!-- Members list -->
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-dark font-weight-bold text-center">Members</li>
+                        <!-- Each member -->
+                        <li each="{ member in Object.values(infos.members) }" class="list-group-item">
+                            { member['company_user_name'] } { member['company_user_surname'] } ({ member.email })
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="col-md-12 col-lg-6 mb-3">
+                    <!-- Storage list -->
+                    <ul class="list-group">
+                        <li class="list-group-item list-group-item-dark font-weight-bold text-center">Storage</li>
+                        <!-- Each storage -->
+                        <li class="list-group-item d-flex justify-content-between align-items-center" each="{ storage in infos.storages }">
+                            { storage['storage_name'] }
+                            <!-- See storage in storage explorer icon -->
+                            <a href="" class="text-decoration-none text-dark" onclick="{ props.seestoragehandler(storage) }">
+                                <svg class="bi bi-eye" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path fill-rule="evenodd" d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.134 13.134 0 0 0 1.66 2.043C4.12 11.332 5.88 12.5 8 12.5c2.12 0 3.879-1.168 5.168-2.457A13.134 13.134 0 0 0 14.828 8a13.133 13.133 0 0 0-1.66-2.043C11.879 4.668 10.119 3.5 8 3.5c-2.12 0-3.879 1.168-5.168 2.457A13.133 13.133 0 0 0 1.172 8z"/>
+                                    <path fill-rule="evenodd" d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Edit group form -->
+            <div if="{ edit }" class="container-fluid">
+                <form class="form-group" onsubmit="{ onSubmitEdit }">
+                    <div class="mb-3">
+                        <span class="text-primary">*</span> required fields
+                    </div>
+
+                    <!-- Title -->
+                    <h2 class="alert alert-dark mb-0">Edit a group</h2>
+
+                    <!-- Fields -->
+                    <groupfields values="{ { name: props.group['company_group_name'], storage: infos.storages } }"/>
+
+                    <!-- Submit button -->
+                    <div class="container-fluid d-flex justify-content-center align-items-center mt-3">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Is editing
+            edit: false,
+            //Group information
+            infos: null,
+            //Don't request again
+            alreadyRequested: false,
+            //Load content error
+            error: "",
+            //edit error
+            editError: "",
+            //Before tag is mounted
+            onBeforeMount() {
+                //Get information
+                this.getGroupInfo();
+            },
+            //Before tag updates
+            onBeforeUpdate() {
+                if(!this.alreadyRequested)
+                    //Get group information if new request needed
+                    this.getGroupInfo();
+                else
+                    this.alreadyRequested = false;
+            },
+            //When tag is updated
+            onUpdated() {
+                if(this.props.group.toggle)
+                    //If show content
+                    $("#collapse-group-" + this.props.group['company_group_id']).collapse('show');
+                else
+                    //If hide content
+                    $("#collapse-group-" + this.props.group['company_group_id']).collapse('hide');
+            },
+            //Show edit form
+            onEdit(e) {
+                e.preventDefault();
+                //Toggle
+                this.edit = !this.edit;
+                this.update();
+            },
+            //Submit edit
+            onSubmitEdit(e) {
+                e.preventDefault();
+                //Get fields
+                let groupFields = this.$('groupfields');
+
+                //Check fields
+                if(groupFields.check()) {
+                    //Request edit
+                    this.editGroup(groupFields.getValues());
+                }
+            },
+            //Get group information
+            async getGroupInfo(e) {
+                if(e) e.preventDefault();
+
+                //Requesting
+                let res = await makeServiceAjax().getGroupRelated(this.props.group['company_group_id']);
+
+                if(res.worked) {
+                    //If worked
+                    this.error = "";
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    //Set information
+                    this.infos = res.content;
+                    this.infos.storages = Object.values(this.infos.storages);
+                    this.update();
+                } else {
+                    //If didn't work
+                    this.error = res.content;
+                    //Don't request again
+                    this.alreadyRequested = true;
+                    this.update();
+                }
+            },
+            //Edit group
+            async editGroup(groupValues) {
+                //Requesting
+                let res = await makeServiceAjax().renameGroup(
+                    this.props.group['company_group_id'],
+                    groupValues.name
+                );
+
+                if(res.worked) {
+                    //If worked
+                    this.editError = "";
+
+                    if(groupValues) {
+                        let selectedStorage = groupValues.storage;
+                        let previousStorage = this.infos.storages;
+                        let found = false;
+
+                        //Each previous storage
+                        for (let a of previousStorage) {
+                            //Each selected storage
+                            for (let b of selectedStorage) {
+                                if (a['storage_id'] === b['storage_id']) {
+                                    //Remove storage if was already selected
+                                    selectedStorage.splice(selectedStorage.indexOf(b), 1);
+                                    found = true;
+                                    break;
+                                }
+                            }
+
+                            if (!found) {
+                                //Add storage if wasn't selected
+                                selectedStorage.push(a);
+                            } else
+                                found = false;
+                        }
+
+                        //Each storage to toggle
+                        for (let i of selectedStorage) {
+                            //Requesting
+                            let res2 = await makeServiceAjax().toggleStorageGroup(
+                                i['storage_id'],
+                                this.props.group['company_group_id']);
+
+                            if (res2.worked) {
+                                //If worked
+                                this.editError = "";
+                                //Close edit form
+                                this.edit = false;
+                                //Tells parent to update
+                                this.props.edithandler();
+                                this.update();
+                            } else {
+                                //If didn't work
+                                this.editError = res.content;
+                                this.update();
+                                return;
+                            }
+                        }
+                    }
+                } else {
+                    //If didn't work
+                    this.editError = res.content;
+                    this.update();
+                }
+            }
+        }
+    </script>
+</groupinfo>

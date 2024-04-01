@@ -1,0 +1,1622 @@
+<!-- Online storage -->
+<storagepage>
+    <!-- Breadcrumb -->
+    <div class="container-fluid p-0 m-0 position-sticky" style="top: 0; z-index: 1000;">
+        <breadcrumb if="{ currentContent }" breadcrumb="{ currentContent ? currentContent.breadcrumb : [] }"
+                    changestorage="{ goToStorage }" current="{ currentContent }"/>
+    </div>
+
+    <!-- Content -->
+    <div class="d-flex flex-wrap justify-content-start align-items-start p-2" style="margin-bottom: 6vh;">
+        <!-- Load content error -->
+        <errormsg show="{ contentError }" value="An error has occurred while loading content : { contentError }. Please, try again."/>
+        <!-- Move error -->
+        <div if="{ moveErrors.length > 0 }" class="alert alert-danger alert-dismissible fade show">
+            <div each="{ err in moveErrors }">
+                An error has occurred while moving { err.name } : { err.error }. Please, try again.
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <!-- Copy error -->
+        <div if="{ copyErrors.length > 0 }" class="alert alert-danger alert-dismissible fade show">
+            <div each="{ err in copyErrors }">
+                An error has occurred while copying { err.name } : { err.error }. Please, try again.
+            </div>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+        <!-- File system display -->
+        <div if="{ currentContent && !newStorage && !newResource && !rename && !seeProperties }" class="container-fluid m-0 p-0 row">
+            <!-- Each storage -->
+            <div each="{ storage in currentContent.storages }" class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 p-0">
+                <storage storage="{ storage }" selected="{ selection.indexOf(storage) >= 0 }"
+                         onsinglerightclick="{ onSingleRightClick(storage,CONSTANTS.STORAGE) }"
+                         onsingleclick="{ onClick(storage) }" ondoubleclick="{ onStorageDoubleClick(storage) }"
+                         dragstart="{ onDragStart(storage) }" dragover="{ onDragOver }" dragend="{ onDragEnd(storage) }"
+                         isdraggable="{ (currentContent['storage_id']) }" by="{ props.rights }"/>
+            </div>
+
+            <!-- Each resource -->
+            <div each="{ resource in currentContent.resources }" class="col-6 col-sm-6 col-md-4 col-lg-3 col-xl-2 p-0">
+                <resource resource="{ resource }" selected="{ selection.indexOf(resource) >= 0 }"
+                          onsinglerightclick="{ onSingleRightClick(resource,CONSTANTS.RESOURCE) }"
+                          onsingleclick="{ onClick(resource) }" ondoubleclick="{ onResourceDoubleClick(resource) }"
+                          dragstart="{ onDragStart(resource) }" isdraggable="{ (currentContent['storage_id']) }" by="{ props.rights }"/>
+            </div>
+        </div>
+
+        <!-- Intermediate displays -->
+        <div if="{ currentContent && (newStorage || newResource || rename || seeProperties) }" class="container px-5 py-3">
+            <!-- Close display button -->
+            <div class="container mb-3">
+                <button type="button" class="btn btn-primary" onclick="{ backToStorageDisplay }">
+                    Close
+                </button>
+            </div>
+
+            <!-- Add storage form -->
+            <form if="{ newStorage }" class="form-group container" onsubmit="{ onSubmitNewStorage }">
+                <div class="mb-3">
+                    <span class="text-primary">*</span> required fields
+                </div>
+                <!-- Add storage error -->
+                <errormsg show="{ newStorageError }" value="An error has occurred : { newStorageError }. Please, try again."/>
+
+                <!-- Title -->
+                <h2 class="alert alert-dark mb-0">Add a new storage</h2>
+
+                <!-- Fields -->
+                <storagefields/>
+
+                <!-- Submit button -->
+                <div class="container-fluid d-flex justify-content-center align-items-center mt-3">
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+
+            <!-- Add resource form -->
+            <form if="{ newResource }" class="form-group container" onsubmit="{ onSubmitNewResource }">
+                <div class="mb-3">
+                    <span class="text-primary">*</span> required fields
+                </div>
+                <!-- Add resource error -->
+                <errormsg show="{ newResourceError }" value="An error has occurred : { newResourceError }. Please, try again."/>
+
+                <!-- Title -->
+                <h2 class="alert alert-dark mb-0">Add a new resource</h2>
+
+                <!-- Fields -->
+                <resourcefields/>
+
+                <!-- Submit button -->
+                <div class="container-fluid d-flex justify-content-center align-items-center mt-3">
+                    <button type="submit" class="btn btn-primary">Add</button>
+                </div>
+            </form>
+
+            <!-- Rename element form -->
+            <form if="{ rename }" class="form-group container" onsubmit="{ onSubmitRename }">
+                <div class="mb-3">
+                    <span class="text-primary">*</span> required fields
+                </div>
+                <!-- Rename error -->
+                <errormsg show="{ renameError }" value="An error has occurred : { renameError }. Please, try again."/>
+
+                <!-- Title -->
+                <h2 class="alert alert-dark mb-0">Rename { optionMenuType === CONSTANTS.STORAGE ? 'storage' : 'resource' }</h2>
+
+                <!-- Fields -->
+                <renamefields values="{ { name: (optionMenuTarget['storage_name'] || optionMenuTarget['resource_name']) } }"/>
+
+                <!-- Submit button -->
+                <div class="container-fluid d-flex justify-content-center align-items-center mt-3">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                </div>
+            </form>
+
+            <!-- See element properties -->
+            <div if="{ seeProperties && currentContent }" class="container">
+                <!-- Title -->
+                <h2 class="alert alert-dark">{ optionMenuType === CONSTANTS.STORAGE ? 'Storage' : 'Resource' } properties</h2>
+                <div class="alert alert-info">To edit a minimum quantity, add a new minimum with the same values.</div>
+
+                <div class="table-responsive rounded">
+                    <table class="table table-bordered table-hover">
+                        <tbody>
+                            <!-- Properties -->
+                            <tr class="thead-dark">
+                                <th colspan="2" class="text-center">
+                                    Properties
+                                </th>
+                            </tr>
+                            <!-- Name -->
+                            <tr>
+                                <th>
+                                    Name
+                                </th>
+                                <td>
+                                    { optionMenuTarget['storage_name'] || optionMenuTarget['resource_name'] }
+                                </td>
+                            </tr>
+                            <!-- type -->
+                            <tr>
+                                <th>
+                                    Type
+                                </th>
+                                <td>
+                                    { optionMenuTarget['resource_type'] ? CONSTANTS.resourceTypeToString(optionMenuTarget['resource_type']) : 'Storage' }
+                                </td>
+                            </tr>
+                            <!-- If resource : quantity -->
+                            <tr if="{ optionMenuType === CONSTANTS.RESOURCE }">
+                                <th>
+                                    Quantity
+                                </th>
+                                <td>
+                                    { optionMenuTarget.qty }
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Edit quantity form -->
+                <div class="container-fluid mb-3 p-0 rounded { editQuantity ? 'border border-dark' : '' }"
+                     if="{ props.rights <= CONSTANTS.COLLABORATOR }">
+                    <div class="d-flex justify-content-start align-items-center p-2">
+                        <!-- Edit icon -->
+                        <a href="" class="text-decoration-none nav-link text-dark mx-3 p-0"
+                           onclick="{ onEditQuantity }" if="{ optionMenuType === CONSTANTS.RESOURCE }">
+                            <!-- Not editing -->
+                            <svg if="{ !editQuantity }" class="bi bi-pencil" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M11.293 1.293a1 1 0 0 1 1.414 0l2 2a1 1 0 0 1 0 1.414l-9 9a1 1 0 0 1-.39.242l-3 1a1 1 0 0 1-1.266-1.265l1-3a1 1 0 0 1 .242-.391l9-9zM12 2l2 2-9 9-3 1 1-3 9-9z"/>
+                                <path fill-rule="evenodd" d="M12.146 6.354l-2.5-2.5.708-.708 2.5 2.5-.707.708zM3 10v.5a.5.5 0 0 0 .5.5H4v.5a.5.5 0 0 0 .5.5H5v.5a.5.5 0 0 0 .5.5H6v-1.5a.5.5 0 0 0-.5-.5H5v-.5a.5.5 0 0 0-.5-.5H3z"/>
+                            </svg>
+                            <!-- Editing -->
+                            <svg if="{ editQuantity }" class="bi bi-x-circle" width="1.25em" height="1.25em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
+                                <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
+                            </svg>
+                        </a>
+
+                        <!-- Generate PDF icon -->
+                        <a href="" if="{ optionMenuType === CONSTANTS.STORAGE && !editQuantity }" class="text-decoration-none nav-link text-dark mx-3 p-0"
+                           onclick="{ onGeneratePDF }">
+                            <svg width="1.25em" height="1.25em" viewBox="0 0 16 16" class="bi bi-download" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <path fill-rule="evenodd" d="M.5 8a.5.5 0 0 1 .5.5V12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.5a.5.5 0 0 1 1 0V12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V8.5A.5.5 0 0 1 .5 8z"/>
+                                <path fill-rule="evenodd" d="M5 7.5a.5.5 0 0 1 .707 0L8 9.793 10.293 7.5a.5.5 0 1 1 .707.707l-2.646 2.647a.5.5 0 0 1-.708 0L5 8.207A.5.5 0 0 1 5 7.5z"/>
+                                <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0v-8A.5.5 0 0 1 8 1z"/>
+                            </svg>
+                        </a>
+                    </div>
+
+                    <!-- Edit quantity form -->
+                    <form id="collapse-edit-quantity" class="form-group container collapse" onsubmit="{ onSubmitEditQuantity }">
+                        <div class="mb-3">
+                            <span class="text-primary">*</span> required fields
+                        </div>
+                        <!-- Edit quantity error -->
+                        <errormsg show="{ editQuantityError }" value="An error has occurred : { editQuantityError }. Please, try again."/>
+
+                        <!-- Title -->
+                        <h2 class="alert alert-dark mb-0">Edit quantity</h2>
+
+                        <!-- Fields -->
+                        <quantityfields values="{ { quantity: optionMenuTarget.qty } }"/>
+
+                        <!-- Submit button -->
+                        <div class="container-fluid d-flex justify-content-center align-items-center mt-3">
+                            <button type="submit" class="btn btn-primary">Save</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Minimums -->
+                <div class="card">
+                    <!-- Head -->
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+                        <span>Minimums</span>
+
+                        <!-- Add minimum button -->
+                        <button if="{ props.rights <= CONSTANTS.MODERATOR }" type="button" class="btn btn-primary" onclick="{ onAddMinimum }">
+                            { addMinimum ? 'Close' : '+ New minimum' }
+                        </button>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="card-body" if="{ props.rights <= CONSTANTS.COLLABORATOR }">
+                        <div id="list-minimum-collapse" class="collapse show row px-3">
+                            <!-- Each minimum if storage -->
+                            <div class="col-sm-12 col-md-6 mt-2" each="{ minimum in optionMenuTarget.minimums }"
+                                 if="{ optionMenuType === CONSTANTS.STORAGE }">
+
+                                <div class="card { (minimum.count < parseInt(minimum.minimum)) ? 'border border-danger' : '' }">
+                                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+                                        <span>
+                                            <!-- Not respected minimum icon -->
+                                            <svg if="{ minimum.count < parseInt(minimum.minimum) }" class="bi bi-exclamation-triangle text-danger d-inline-block mr-2" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                              <path fill-rule="evenodd" d="M7.938 2.016a.146.146 0 0 0-.054.057L1.027 13.74a.176.176 0 0 0-.002.183c.016.03.037.05.054.06.015.01.034.017.066.017h13.713a.12.12 0 0 0 .066-.017.163.163 0 0 0 .055-.06.176.176 0 0 0-.003-.183L8.12 2.073a.146.146 0 0 0-.054-.057A.13.13 0 0 0 8.002 2a.13.13 0 0 0-.064.016zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/>
+                                              <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/>
+                                            </svg>
+                                            <!-- Applies on what -->
+                                            <span class="d-inline-block">
+                                                Applies on
+                                                { minimum['resource_type'] ? ' type : ' + CONSTANTS.resourceTypeToString(minimum['resource_type']) : '' }
+                                                { minimum['resource_name'] ? ' name : ' + minimum['resource_name'] : '' }
+                                            </span>
+                                        </span>
+                                        <!-- Delete minimum button -->
+                                        <button type="button" class="close" onclick="{ onDeleteMinimum(minimum) }">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Count / minimum -->
+                                    <div class="card-body text-center ">
+                                        { minimum.count || '0' } / { parseInt(minimum.minimum) }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Each minimum if resource -->
+                            <div class="col-12 mt-2" if="{ optionMenuType === CONSTANTS.RESOURCE && Object.values(optionMenuTarget.minimums).length > 0 }">
+                                <div class="card { (parseInt(optionMenuTarget.qty) < parseInt(optionMenuTarget.minimums.minimum)) ? 'border border-danger' : '' }">
+                                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center">
+                                        <span>
+                                            <!-- Not respected minimum icon -->
+                                            <svg if="{ parseInt(optionMenuTarget.qty) < parseInt(optionMenuTarget.minimums.minimum) }" class="bi bi-exclamation-triangle text-danger d-inline-block mr-2" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                              <path fill-rule="evenodd" d="M7.938 2.016a.146.146 0 0 0-.054.057L1.027 13.74a.176.176 0 0 0-.002.183c.016.03.037.05.054.06.015.01.034.017.066.017h13.713a.12.12 0 0 0 .066-.017.163.163 0 0 0 .055-.06.176.176 0 0 0-.003-.183L8.12 2.073a.146.146 0 0 0-.054-.057A.13.13 0 0 0 8.002 2a.13.13 0 0 0-.064.016zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/>
+                                              <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/>
+                                            </svg>
+                                            <!-- Applies on what -->
+                                            <span class="d-inline-block">Applies on this resource</span>
+                                        </span>
+                                        <!-- Delete minimum button -->
+                                        <button type="button" class="close" onclick="{ onDeleteMinimum(optionMenuTarget.minimums) }">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+
+                                    <!-- Quantity / minimum -->
+                                    <div class="card-body text-center ">
+                                        { parseInt(optionMenuTarget.qty) } / { parseInt(optionMenuTarget.minimums.minimum) }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add minimum form -->
+                        <form id="add-minimum-collapse" class="container-fluid m-0 p-0 collapse" onsubmit="{ onAddMinimumSubmit }">
+                            <div class="mb-3">
+                                <span class="text-primary">*</span> required fields
+                            </div>
+
+                            <!-- Add minimum error -->
+                            <errormsg show="{ addMinimumError }" value="An error has occurred : { addMinimumError }. Please, try again."/>
+
+                            <!-- Title -->
+                            <h2 class="alert alert-dark">Add a new minimum</h2>
+                            <div class="alert alert-info">If the same minimum already exist, it will be updated.</div>
+
+                            <!-- Fields -->
+                            <storageminimumfields if="{ optionMenuType === CONSTANTS.STORAGE }"/>
+                            <resourceminimumfields if="{ optionMenuType === CONSTANTS.RESOURCE }"/>
+
+                            <!-- Submit button -->
+                            <div class="container-fluid d-flex justify-content-center align-items-center mt-3">
+                                <button type="submit" class="btn btn-primary">Add minimum</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action bar -->
+    <div class="position-fixed" style="bottom: 0; left: 0; right: 0; max-height: 6vh;">
+        <div if="{ currentContent }" class="d-flex flex-wrap justify-content-start align-items-center bg-dark w-100">
+            <!-- Deselect all -->
+            <a href="" class="text-decoration-none nav-link text-white m-1 p-2" onclick="{ deselectAll }">
+                <svg class="bi bi-x-circle" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path fill-rule="evenodd" d="M11.854 4.146a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708-.708l7-7a.5.5 0 0 1 .708 0z"/>
+                    <path fill-rule="evenodd" d="M4.146 4.146a.5.5 0 0 0 0 .708l7 7a.5.5 0 0 0 .708-.708l-7-7a.5.5 0 0 0-.708 0z"/>
+                </svg>
+            </a>
+
+            <!-- Select all -->
+            <a href="" class="text-decoration-none nav-link text-white m-1 p-2" onclick="{ selectAll }">
+                <svg class="bi bi-check-all" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M8.97 4.97a.75.75 0 0 1 1.071 1.05l-3.992 4.99a.75.75 0 0 1-1.08.02L2.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093L8.95 4.992a.252.252 0 0 1 .02-.022zm-.92 5.14l.92.92a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 1 0-1.091-1.028L9.477 9.417l-.485-.486-.943 1.179z"/>
+                </svg>
+            </a>
+
+            <!-- Keep selection mode -->
+            <a href="" class="text-decoration-none nav-link text-white m-1 p-2 rounded { keepSelectMode ? 'bg-secondary' : '' }"
+               onclick="{ keepSelect }">
+                <svg class="bi bi-list-check" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M5 11.5a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zm0-4a.5.5 0 0 1 .5-.5h9a.5.5 0 0 1 0 1h-9a.5.5 0 0 1-.5-.5zM3.854 2.146a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 3.293l1.146-1.147a.5.5 0 0 1 .708 0zm0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 1 1 .708-.708L2 7.293l1.146-1.147a.5.5 0 0 1 .708 0zm0 4a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0l-.5-.5a.5.5 0 0 1 .708-.708l.146.147 1.146-1.147a.5.5 0 0 1 .708 0z"/>
+                </svg>
+            </a>
+
+            <!-- See properties of current storage -->
+            <a if="{ currentContent['storage_id'] && props.rights <= CONSTANTS.COLLABORATOR }" href="" class="text-decoration-none nav-link text-white m-1 p-2 rounded"
+               onclick="{ onSeeCurrentProperties }">
+                <svg class="bi bi-gear" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M8.837 1.626c-.246-.835-1.428-.835-1.674 0l-.094.319A1.873 1.873 0 0 1 4.377 3.06l-.292-.16c-.764-.415-1.6.42-1.184 1.185l.159.292a1.873 1.873 0 0 1-1.115 2.692l-.319.094c-.835.246-.835 1.428 0 1.674l.319.094a1.873 1.873 0 0 1 1.115 2.693l-.16.291c-.415.764.42 1.6 1.185 1.184l.292-.159a1.873 1.873 0 0 1 2.692 1.116l.094.318c.246.835 1.428.835 1.674 0l.094-.319a1.873 1.873 0 0 1 2.693-1.115l.291.16c.764.415 1.6-.42 1.184-1.185l-.159-.291a1.873 1.873 0 0 1 1.116-2.693l.318-.094c.835-.246.835-1.428 0-1.674l-.319-.094a1.873 1.873 0 0 1-1.115-2.692l.16-.292c.415-.764-.42-1.6-1.185-1.184l-.291.159A1.873 1.873 0 0 1 8.93 1.945l-.094-.319zm-2.633-.283c.527-1.79 3.065-1.79 3.592 0l.094.319a.873.873 0 0 0 1.255.52l.292-.16c1.64-.892 3.434.901 2.54 2.541l-.159.292a.873.873 0 0 0 .52 1.255l.319.094c1.79.527 1.79 3.065 0 3.592l-.319.094a.873.873 0 0 0-.52 1.255l.16.292c.893 1.64-.902 3.434-2.541 2.54l-.292-.159a.873.873 0 0 0-1.255.52l-.094.319c-.527 1.79-3.065 1.79-3.592 0l-.094-.319a.873.873 0 0 0-1.255-.52l-.292.16c-1.64.893-3.433-.902-2.54-2.541l.159-.292a.873.873 0 0 0-.52-1.255l-.319-.094c-1.79-.527-1.79-3.065 0-3.592l.319-.094a.873.873 0 0 0 .52-1.255l-.16-.292c-.892-1.64.902-3.433 2.541-2.54l.292.159a.873.873 0 0 0 1.255-.52l.094-.319z"/>
+                    <path fill-rule="evenodd" d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/>
+                </svg>
+            </a>
+
+            <!-- Add storage -->
+            <a if="{ currentContent['storage_id'] && props.rights <= CONSTANTS.MODERATOR }" href="" class="text-decoration-none nav-link text-white m-1 p-2 rounded"
+               onclick="{ onAddStorage }">
+                <svg class="bi bi-folder-plus" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M9.828 4H2.19a1 1 0 0 0-.996 1.09l.637 7a1 1 0 0 0 .995.91H9v1H2.826a2 2 0 0 1-1.991-1.819l-.637-7a1.99 1.99 0 0 1 .342-1.31L.5 3a2 2 0 0 1 2-2h3.672a2 2 0 0 1 1.414.586l.828.828A2 2 0 0 0 9.828 3h3.982a2 2 0 0 1 1.992 2.181L15.546 8H14.54l.265-2.91A1 1 0 0 0 13.81 4H9.828zm-2.95-1.707L7.587 3H2.19c-.24 0-.47.042-.684.12L1.5 2.98a1 1 0 0 1 1-.98h3.672a1 1 0 0 1 .707.293z"/>
+                    <path fill-rule="evenodd" d="M13.5 10a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1H13v-1.5a.5.5 0 0 1 .5-.5z"/>
+                    <path fill-rule="evenodd" d="M13 12.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0v-2z"/>
+                </svg>
+            </a>
+
+            <!-- Add resource -->
+            <a if="{ currentContent['storage_id'] && props.rights <= CONSTANTS.MODERATOR }" href="" class="text-decoration-none nav-link text-white m-1 p-2 rounded"
+               onclick="{ onAddResource }">
+                <svg class="bi bi-file-earmark-plus" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 1H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h5v-1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5v2.5A1.5 1.5 0 0 0 10.5 6H13v2h1V6L9 1z"/>
+                    <path fill-rule="evenodd" d="M13.5 10a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1H13v-1.5a.5.5 0 0 1 .5-.5z"/>
+                    <path fill-rule="evenodd" d="M13 12.5a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0v-2z"/>
+                </svg>
+            </a>
+
+            <!-- Copy -->
+            <a if="{ (currentContent['storage_id'] && selection.length >= 1 && props.rights <= CONSTANTS.MODERATOR) || copy }" href=""
+               class="text-decoration-none nav-link text-white m-1 p-2 rounded { copy ? 'bg-secondary' : '' }" onclick="{ onCopy }">
+                <svg class="bi bi-files" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M3 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3z"/>
+                    <path d="M5 0h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1H3a2 2 0 0 1 2-2z"/>
+                </svg>
+            </a>
+
+            <!-- Move -->
+            <a if="{ (currentContent['storage_id'] && selection.length >= 1 && props.rights <= CONSTANTS.MODERATOR) || move }" href=""
+               class="text-decoration-none nav-link text-white m-1 p-2 rounded { move ? 'bg-secondary' : '' }" onclick="{ onMove }">
+                <svg class="bi bi-arrows-move" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M6.5 8a.5.5 0 0 0-.5-.5H1.5a.5.5 0 0 0 0 1H6a.5.5 0 0 0 .5-.5z"/>
+                    <path fill-rule="evenodd" d="M3.854 5.646a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L2.207 8l1.647-1.646a.5.5 0 0 0 0-.708zM9.5 8a.5.5 0 0 1 .5-.5h4.5a.5.5 0 0 1 0 1H10a.5.5 0 0 1-.5-.5z"/>
+                    <path fill-rule="evenodd" d="M12.146 5.646a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L13.793 8l-1.647-1.646a.5.5 0 0 1 0-.708zM8 9.5a.5.5 0 0 0-.5.5v4.5a.5.5 0 0 0 1 0V10a.5.5 0 0 0-.5-.5z"/>
+                    <path fill-rule="evenodd" d="M5.646 12.146a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8 13.793l-1.646-1.647a.5.5 0 0 0-.708 0zM8 6.5a.5.5 0 0 1-.5-.5V1.5a.5.5 0 0 1 1 0V6a.5.5 0 0 1-.5.5z"/>
+                    <path fill-rule="evenodd" d="M5.646 3.854a.5.5 0 0 1 0-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8 2.207 6.354 3.854a.5.5 0 0 1-.708 0z"/>
+                </svg>
+            </a>
+
+            <!-- Paste -->
+            <a if="{ currentContent['storage_id'] && props.rights <= CONSTANTS.MODERATOR && copy }" href="" class="text-decoration-none nav-link text-white m-1 p-2 rounded"
+               onclick="{ onPaste }">
+                <svg class="bi bi-file-earmark-arrow-down" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M4 1h5v1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V6h1v7a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2z"/>
+                    <path d="M9 4.5V1l5 5h-3.5A1.5 1.5 0 0 1 9 4.5z"/>
+                    <path fill-rule="evenodd" d="M5.646 9.146a.5.5 0 0 1 .708 0L8 10.793l1.646-1.647a.5.5 0 0 1 .708.708l-2 2a.5.5 0 0 1-.708 0l-2-2a.5.5 0 0 1 0-.708z"/>
+                    <path fill-rule="evenodd" d="M8 6a.5.5 0 0 1 .5.5v4a.5.5 0 0 1-1 0v-4A.5.5 0 0 1 8 6z"/>
+                </svg>
+            </a>
+
+            <!-- Put down moved elements -->
+            <a if="{ currentContent['storage_id'] && props.rights <= CONSTANTS.MODERATOR && move }" href="" class="text-decoration-none nav-link text-white m-1 p-2 rounded"
+               onclick="{ onMoveDrop }">
+                <svg class="bi bi-arrow-down-circle" width="1.5em" height="1.5em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path fill-rule="evenodd" d="M4.646 7.646a.5.5 0 0 1 .708 0L8 10.293l2.646-2.647a.5.5 0 0 1 .708.708l-3 3a.5.5 0 0 1-.708 0l-3-3a.5.5 0 0 1 0-.708z"/>
+                    <path fill-rule="evenodd" d="M8 4.5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5z"/>
+                </svg>
+            </a>
+        </div>
+    </div>
+
+    <!-- Option menu (Opens on right click) -->
+    <ul if="{ currentContent }" id="option-menu" class="list-group position-absolute shadow-lg border rounded" style="display: none; z-index: 1001;"
+        onmouseenter="{ onEnterOptionMenu }" onmouseleave="{ onLeaveOptionMenu }">
+
+        <!-- Open storage -->
+        <li class="list-group-item p-0 rounded-top"
+            if="{ selection.length <= 1 && optionMenuType === CONSTANTS.STORAGE }">
+            <a href="" class="d-flex justify-content-start align-items-center text-decoration-none text-dark bg-light py-2 px-3"
+               onclick="{ onOpen }">
+                <svg class="bi bi-reply mr-2" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M9.502 5.013a.144.144 0 0 0-.202.134V6.3a.5.5 0 0 1-.5.5c-.667 0-2.013.005-3.3.822-.984.624-1.99 1.76-2.595 3.876C3.925 10.515 5.09 9.982 6.11 9.7a8.741 8.741 0 0 1 1.921-.306 7.403 7.403 0 0 1 .798.008h.013l.005.001h.001L8.8 9.9l.05-.498a.5.5 0 0 1 .45.498v1.153c0 .108.11.176.202.134l3.984-2.933a.494.494 0 0 1 .042-.028.147.147 0 0 0 0-.252.494.494 0 0 1-.042-.028L9.502 5.013zM8.3 10.386a7.745 7.745 0 0 0-1.923.277c-1.326.368-2.896 1.201-3.94 3.08a.5.5 0 0 1-.933-.305c.464-3.71 1.886-5.662 3.46-6.66 1.245-.79 2.527-.942 3.336-.971v-.66a1.144 1.144 0 0 1 1.767-.96l3.994 2.94a1.147 1.147 0 0 1 0 1.946l-3.994 2.94a1.144 1.144 0 0 1-1.767-.96v-.667z"/>
+                </svg>
+                Open
+            </a>
+        </li>
+        <!-- See properties -->
+        <li class="list-group-item p-0 rounded-top"
+            if="{ selection.length <= 1 && (optionMenuType === CONSTANTS.STORAGE || optionMenuType === CONSTANTS.RESOURCE) }">
+            <a href="" class="d-flex justify-content-start align-items-center text-decoration-none text-dark bg-light py-2 px-3"
+               onclick="{ onSeeProperties }">
+                <svg class="bi bi-gear mr-2" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M8.837 1.626c-.246-.835-1.428-.835-1.674 0l-.094.319A1.873 1.873 0 0 1 4.377 3.06l-.292-.16c-.764-.415-1.6.42-1.184 1.185l.159.292a1.873 1.873 0 0 1-1.115 2.692l-.319.094c-.835.246-.835 1.428 0 1.674l.319.094a1.873 1.873 0 0 1 1.115 2.693l-.16.291c-.415.764.42 1.6 1.185 1.184l.292-.159a1.873 1.873 0 0 1 2.692 1.116l.094.318c.246.835 1.428.835 1.674 0l.094-.319a1.873 1.873 0 0 1 2.693-1.115l.291.16c.764.415 1.6-.42 1.184-1.185l-.159-.291a1.873 1.873 0 0 1 1.116-2.693l.318-.094c.835-.246.835-1.428 0-1.674l-.319-.094a1.873 1.873 0 0 1-1.115-2.692l.16-.292c.415-.764-.42-1.6-1.185-1.184l-.291.159A1.873 1.873 0 0 1 8.93 1.945l-.094-.319zm-2.633-.283c.527-1.79 3.065-1.79 3.592 0l.094.319a.873.873 0 0 0 1.255.52l.292-.16c1.64-.892 3.434.901 2.54 2.541l-.159.292a.873.873 0 0 0 .52 1.255l.319.094c1.79.527 1.79 3.065 0 3.592l-.319.094a.873.873 0 0 0-.52 1.255l.16.292c.893 1.64-.902 3.434-2.541 2.54l-.292-.159a.873.873 0 0 0-1.255.52l-.094.319c-.527 1.79-3.065 1.79-3.592 0l-.094-.319a.873.873 0 0 0-1.255-.52l-.292.16c-1.64.893-3.433-.902-2.54-2.541l.159-.292a.873.873 0 0 0-.52-1.255l-.319-.094c-1.79-.527-1.79-3.065 0-3.592l.319-.094a.873.873 0 0 0 .52-1.255l-.16-.292c-.892-1.64.902-3.433 2.541-2.54l.292.159a.873.873 0 0 0 1.255-.52l.094-.319z"/>
+                    <path fill-rule="evenodd" d="M8 5.754a2.246 2.246 0 1 0 0 4.492 2.246 2.246 0 0 0 0-4.492zM4.754 8a3.246 3.246 0 1 1 6.492 0 3.246 3.246 0 0 1-6.492 0z"/>
+                </svg>
+                Properties
+            </a>
+        </li>
+        <!-- Copy -->
+        <li class="list-group-item p-0 rounded-top"
+            if="{ (optionMenuType === CONSTANTS.STORAGE || optionMenuType === CONSTANTS.RESOURCE) && currentContent['storage_id'] && props.rights <= CONSTANTS.MODERATOR }">
+            <a href="" class="d-flex justify-content-start align-items-center text-decoration-none text-dark bg-light py-2 px-3" onclick="{ onCopy }">
+                <svg class="bi bi-files mr-2" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M3 2h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm0 1a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H3z"/>
+                    <path d="M5 0h8a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2v-1a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1H3a2 2 0 0 1 2-2z"/>
+                </svg>
+                Copy
+            </a>
+        </li>
+        <!-- Move -->
+        <li class="list-group-item p-0 rounded-top"
+            if="{ (optionMenuType === CONSTANTS.STORAGE || optionMenuType === CONSTANTS.RESOURCE)
+            && currentContent['storage_id'] && props.rights <= CONSTANTS.MODERATOR }">
+            <a href="" class="d-flex justify-content-start align-items-center text-decoration-none text-dark bg-light py-2 px-3" onclick="{ onMove }">
+                <svg class="bi bi-arrows-move mr-2" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M6.5 8a.5.5 0 0 0-.5-.5H1.5a.5.5 0 0 0 0 1H6a.5.5 0 0 0 .5-.5z"/>
+                    <path fill-rule="evenodd" d="M3.854 5.646a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L2.207 8l1.647-1.646a.5.5 0 0 0 0-.708zM9.5 8a.5.5 0 0 1 .5-.5h4.5a.5.5 0 0 1 0 1H10a.5.5 0 0 1-.5-.5z"/>
+                    <path fill-rule="evenodd" d="M12.146 5.646a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L13.793 8l-1.647-1.646a.5.5 0 0 1 0-.708zM8 9.5a.5.5 0 0 0-.5.5v4.5a.5.5 0 0 0 1 0V10a.5.5 0 0 0-.5-.5z"/>
+                    <path fill-rule="evenodd" d="M5.646 12.146a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708 0l2-2a.5.5 0 0 0-.708-.708L8 13.793l-1.646-1.647a.5.5 0 0 0-.708 0zM8 6.5a.5.5 0 0 1-.5-.5V1.5a.5.5 0 0 1 1 0V6a.5.5 0 0 1-.5.5z"/>
+                    <path fill-rule="evenodd" d="M5.646 3.854a.5.5 0 0 1 0-.708l2-2a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1-.708.708L8 2.207 6.354 3.854a.5.5 0 0 1-.708 0z"/>
+                </svg>
+                Move
+            </a>
+        </li>
+        <!-- Rename -->
+        <li class="list-group-item p-0"
+            if="{ selection.length === 1 && (optionMenuType === CONSTANTS.STORAGE || optionMenuType === CONSTANTS.RESOURCE)
+            && props.rights <= CONSTANTS.MODERATOR }">
+            <a href="" class="d-flex justify-content-start align-items-center text-decoration-none text-dark bg-light py-2 px-3" onclick="{ onRename }">
+                <svg class="bi bi-pencil mr-2" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M11.293 1.293a1 1 0 0 1 1.414 0l2 2a1 1 0 0 1 0 1.414l-9 9a1 1 0 0 1-.39.242l-3 1a1 1 0 0 1-1.266-1.265l1-3a1 1 0 0 1 .242-.391l9-9zM12 2l2 2-9 9-3 1 1-3 9-9z"/>
+                    <path fill-rule="evenodd" d="M12.146 6.354l-2.5-2.5.708-.708 2.5 2.5-.707.708zM3 10v.5a.5.5 0 0 0 .5.5H4v.5a.5.5 0 0 0 .5.5H5v.5a.5.5 0 0 0 .5.5H6v-1.5a.5.5 0 0 0-.5-.5H5v-.5a.5.5 0 0 0-.5-.5H3z"/>
+                </svg>
+                Rename
+            </a>
+        </li>
+        <!-- Generate PDF -->
+        <li class="list-group-item p-0"
+            if="{ selection.length === 1 && optionMenuType === CONSTANTS.STORAGE && props.rights <= CONSTANTS.MODERATOR }">
+            <a href="" class="d-flex justify-content-start align-items-center text-decoration-none text-dark bg-light py-2 px-3" onclick="{ onGeneratePDF }">
+                <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-download mr-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M.5 8a.5.5 0 0 1 .5.5V12a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8.5a.5.5 0 0 1 1 0V12a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V8.5A.5.5 0 0 1 .5 8z"/>
+                    <path fill-rule="evenodd" d="M5 7.5a.5.5 0 0 1 .707 0L8 9.793 10.293 7.5a.5.5 0 1 1 .707.707l-2.646 2.647a.5.5 0 0 1-.708 0L5 8.207A.5.5 0 0 1 5 7.5z"/>
+                    <path fill-rule="evenodd" d="M8 1a.5.5 0 0 1 .5.5v8a.5.5 0 0 1-1 0v-8A.5.5 0 0 1 8 1z"/>
+                </svg>
+                Download to PDF
+            </a>
+        </li>
+        <!-- Delete -->
+        <li class="list-group-item p-0 rounded-bottom" if="{ currentContent['storage_id'] && props.rights <= CONSTANTS.MODERATOR }">
+            <a href="" class="d-flex justify-content-start align-items-center text-decoration-none text-dark bg-light py-2 px-3" data-toggle="modal" data-target="#delete-element-modal">
+                <svg class="bi bi-trash mr-2" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                </svg>
+                Delete
+            </a>
+        </li>
+    </ul>
+
+    <!-- Delete elements modal -->
+    <div if="{ optionMenuType && optionMenuTarget }" id="delete-element-modal" class="modal fade">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <!-- Modal head -->
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title font-weight-bold">Delete { optionMenuType === CONSTANTS.STORAGE ? 'storage' : 'resource' } ?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body text-center">
+                    <div if="{ deleteErrors.length > 0 }" class="alert alert-danger alert-dismissible fade show">
+                        <!-- Delete error -->
+                        <div each="{ err in deleteErrors }">
+                            An error has occurred while deleting { err.name } : { err.error }. Please, try again.
+                        </div>
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div>
+                        <svg class="bi bi-exclamation-triangle text-danger" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M7.938 2.016a.146.146 0 0 0-.054.057L1.027 13.74a.176.176 0 0 0-.002.183c.016.03.037.05.054.06.015.01.034.017.066.017h13.713a.12.12 0 0 0 .066-.017.163.163 0 0 0 .055-.06.176.176 0 0 0-.003-.183L8.12 2.073a.146.146 0 0 0-.054-.057A.13.13 0 0 0 8.002 2a.13.13 0 0 0-.064.016zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/>
+                            <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        Are you sure to delete{ selection.length <= 1 ? ' this element : ' : ' these ' + selection.length + ' elements : ' }
+                        <span each="{ (element,index) in selection }">
+                            <strong>{ element['storage_name'] || element['resource_name'] }</strong>
+                            { index < selection.length - 2 ? ', ' : ' ' }
+                        </span>
+                        ?
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer justify-content-center">
+                    <!-- Cancel delete -->
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">
+                        Cancel
+                    </button>
+                    <!-- Delete -->
+                    <button type="button" class="btn btn-danger" onclick="{ deleteElements }">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete minimum modal -->
+    <div if="{ optionMenuType && optionMenuTarget && deletedMinimum }" id="delete-minimum-modal" class="modal fade">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <!-- Modal head -->
+                <div class="modal-header bg-danger">
+                    <h5 class="modal-title font-weight-bold">Delete { optionMenuType === CONSTANTS.STORAGE ? 'storage' : 'resource' } minimum ?</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <!-- Modal body -->
+                <div class="modal-body text-center">
+                    <errormsg show="{ deleteMinimumError }" value="An error has occurred while deleting this minimum : { deleteMinimumError }. Please, try again."/>
+
+                    <div>
+                        <svg class="bi bi-exclamation-triangle text-danger" width="2em" height="2em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M7.938 2.016a.146.146 0 0 0-.054.057L1.027 13.74a.176.176 0 0 0-.002.183c.016.03.037.05.054.06.015.01.034.017.066.017h13.713a.12.12 0 0 0 .066-.017.163.163 0 0 0 .055-.06.176.176 0 0 0-.003-.183L8.12 2.073a.146.146 0 0 0-.054-.057A.13.13 0 0 0 8.002 2a.13.13 0 0 0-.064.016zm1.044-.45a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566z"/>
+                            <path d="M7.002 12a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 5.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        Are you sure to delete this { optionMenuType === CONSTANTS.STORAGE ? 'storage' : 'resource' } minimum { optionMenuType === CONSTANTS.STORAGE ? ' on ' + (deletedMinimum['resource_type'] ? CONSTANTS.resourceTypeToString(deletedMinimum['resource_type']) : deletedMinimum['resource_name']) : '' }?
+                    </div>
+                </div>
+
+                <!-- Modal footer -->
+                <div class="modal-footer justify-content-center">
+                    <!-- Cancel delete -->
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" aria-label="Close">
+                        Cancel
+                    </button>
+                    <!-- Delete -->
+                    <button type="button" class="btn btn-danger"
+                            onclick="{ optionMenuType === CONSTANTS.STORAGE ? deleteStorageMinimum : deleteResourceMinimum }">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        export default {
+            CONSTANTS: CONSTANTS,
+            //Current storage
+            currentContent: null,
+            //Selected elements
+            selection: [],
+            //Selected elements to move
+            moveSelection: [],
+            //Selected elements to copy
+            copySelection: [],
+            //Show new storage display
+            newStorage: false,
+            //Show new resource display
+            newResource: false,
+            //Show rename display
+            rename: false,
+            //Show move display
+            move: false,
+            //Show copy display
+            copy: false,
+            //Show see properties display
+            seeProperties: false,
+            //Show add minimum display
+            addMinimum: false,
+            //Show edit quantity
+            editQuantity: false,
+            //Is keep select mode activated
+            keepSelectMode: false,
+            //Close option
+            closeOptionMenu: true,
+            //Minimum to delete
+            deletedMinimum: null,
+            //Option menu target
+            optionMenuTarget: null,
+            //Option menu type
+            optionMenuType: "",
+            //Load content error
+            contentError: "",
+            //Add storage error
+            newStorageError: "",
+            //Add resource error
+            newResourceError: "",
+            //Rename error
+            renameError: "",
+            //Add minimum error
+            addMinimumError: "",
+            //Delete minimum error
+            deleteMinimumError: "",
+            //Edit quantity error
+            editQuantityError: "",
+            //Delete elements errors
+            deleteErrors: [],
+            //Move errors
+            moveErrors: [],
+            //Copy errors
+            copyErrors: [],
+            //When tag is mounted
+            onMounted(){
+                //Redirect window actions
+                window.onclick = this.onWindowClick;
+                window.onscroll = this.onWindowScroll;
+                //Show available storage
+                this.changeStorage();
+            },
+            //When tag is updated
+            onUpdated() {
+                //Hide option menu
+                this.hideOptionMenu();
+            },
+            //Get storage content
+            async changeStorage(storage){
+                this.turnOffDisplays();
+                this.contentError = "";
+                this.selection = [];
+
+                //Get available storage if storage argument or its id is undefined, else, get storage content of storage given in argument
+                let res = (storage && storage['storage_id']) ? await this.getElementProperties(storage) :
+                    await makeServiceAjax().getAvailableStorages();
+
+                if((storage && storage['storage_id']) ? !this.contentError : res.worked) {
+                    //Current content shows available storage if storage argument or its id is undefined,
+                    if(!(storage && storage['storage_id'])) {
+                        this.currentContent = {
+                            storages: res.content,
+                            resources: {},
+                            breadcrumb: {},
+                            'storage_id': null
+                        };
+                    } else
+                        //Else, shows opened storage content is the result
+                        this.currentContent = storage;
+
+                    //Each child storage
+                    for (let i of Object.values(this.currentContent.storages)) {
+                        //Get storage content
+                        await this.getElementProperties(i);
+
+                        if(this.contentError)
+                            //Stop if didn't work
+                            break;
+                    }
+
+                    if(!this.contentError) {
+                        //If worked
+                        //Convert to array and sort storage name by alphabetic order
+                        this.currentContent.storages = Object.values(this.currentContent.storages).sort(function (a, b) {
+                            return a['storage_name'].localeCompare(b['storage_name']);
+                        });
+
+                        //Sort resources name by type
+                        let sortResources = {};
+                        sortResources[CONSTANTS.FOOD] = [];
+                        sortResources[CONSTANTS.RAW_MATERIAL] = [];
+                        sortResources[CONSTANTS.HARDWARE] = [];
+                        sortResources[CONSTANTS.SOFTWARE] = [];
+                        sortResources[CONSTANTS.OFFICE_SUPPLY] = [];
+                        sortResources[CONSTANTS.TOOL] = [];
+                        for(let i of Object.values(this.currentContent.resources)) {
+                            sortResources[i['resource_type']].push(i);
+                        }
+                        this.currentContent.resources = [];
+                        //Sort resource name by alphabetic order
+                        for(let i of Object.values(sortResources)) {
+                            i.sort(function (a, b) {
+                                return a['resource_name'].localeCompare(b['resource_name']);
+                            });
+                            for(let j of i) {
+                                this.currentContent.resources.push(j);
+                            }
+                        }
+
+                        //Convert breadcrumbs to array
+                        this.currentContent.breadcrumb = Object.values(this.currentContent.breadcrumb);
+
+                    } else {
+                        //If didn't work
+                        this.selection = [];
+                        this.currentContent = null;
+                    }
+                } else {
+                    //If didn't work
+                    this.selection = [];
+                    if(res)
+                        this.contentError = res.content;
+                    this.currentContent = null;
+                }
+
+                //Disable keep select mode
+                this.keepSelectMode = false;
+                this.update();
+            },
+            //Get element properties
+            async getElementProperties(element){
+                let res = {
+                    worked: false,
+                    content: "Unknown element"
+                };
+
+                //Requesting
+                if(element['resource_id'])
+                    res = await makeServiceAjax().getResourceById(element['resource_id']);
+                else if(element['storage_id'])
+                    res = await makeServiceAjax().getStorageContent(element['storage_id']);
+
+                if(res.worked) {
+                    //If worked
+                    this.contentError = "";
+                    element = Object.assign(element,res.content);
+
+                    if(element['storage_id']) {
+                        element.minimums = Object.values(element.minimums);
+                        element.breadcrumb = Object.values(element.breadcrumb);
+                        element.storages = Object.values(element.storages);
+                        element.resources = Object.values(element.resources);
+                        element['resource_missing'] = false;
+
+                        //Each child resource
+                        for(let i of element.resources) {
+                            //Get properties
+                            await this.getElementProperties(i);
+
+                            if(!element['resource_missing'] && parseInt(i.qty) < parseInt(i.minimums.minimum)) {
+                                //Indicate that at least one resource have a not respected minimum
+                                i['resource_missing'] = true;
+                                element['resource_missing'] = true;
+                            }
+                        }
+
+                        //Each minimum
+                        for(let i of element.minimums){
+                            if(i.count < parseInt(i.minimum)) {
+                                //Indicate that at least one storage minimum is not respected
+                                element['storage_missing'] = true;
+                                break;
+                            }
+                        }
+                    }
+                } else {
+                    //If didn't work
+                    this.contentError = res.content;
+                    this.update();
+                }
+            },
+            //Change storage with event
+            goToStorage(id) {
+                return (e)=> {
+                    e.preventDefault();
+                    //Show storage
+                    this.changeStorage(id);
+                };
+            },
+            //Single left click
+            onClick(element) {
+                return (e)=> {
+                    e.preventDefault();
+
+                    if(!this.keepSelectMode)
+                        //Deselect all if keep select mode is off
+                        this.deselectAll();
+
+                    let indexOf = this.selection.indexOf(element);
+                    if (indexOf < 0)
+                        //Add in selection if not already selected
+                        this.selection.push(element);
+                    else if(this.keepSelectMode)
+                        //Remove of selection if already selected and keep select mode is on
+                        this.selection.splice(indexOf,1);
+
+                    this.update();
+                };
+            },
+            //Single right click
+            onSingleRightClick(element,type) {
+                return (e)=> {
+                    //Set option target menu information
+                    this.optionMenuTarget = element;
+                    this.optionMenuType = type;
+
+                    if(this.selection.indexOf(element) < 0) {
+                        //Deselect all and add element if not already selected
+                        this.selection = [];
+                        this.selection.push(element);
+                    }
+
+                    this.update();
+                    //Show option menu
+                    this.showOptionMenu(e);
+                };
+            },
+            //Double click on storage
+            onStorageDoubleClick(storage) {
+                return (e)=> {
+                    e.preventDefault();
+                    //Show storage content
+                    this.changeStorage(storage);
+                };
+            },
+            //Double click on resource
+            onResourceDoubleClick(resource) {
+                return (e)=> {
+                    //Ser option menu target information
+                    this.optionMenuType = CONSTANTS.RESOURCE;
+                    this.optionMenuTarget = resource;
+                    //Open see properties display
+                    this.onSeeProperties(e);
+                };
+            },
+            //Drag and drop starts
+            onDragStart(element) {
+                return (e)=> {
+                    if(this.selection.indexOf(element) < 0) {
+                        //Deselect all and add element if not already selected
+                        this.selection = [];
+                        this.selection.push(element);
+                    }
+                    this.update();
+                };
+            },
+            //Drag and drop passes over an element
+            onDragOver(e) {
+                e.preventDefault();
+            },
+            //Drop
+            onDragEnd(element) {
+                return (e)=> {
+                    e.preventDefault();
+                    //Move elements
+                    this.moveElements(element,this.selection);
+                }
+            },
+            //Select all element
+            selectAll(e) {
+                e.preventDefault();
+                //Deselect all
+                this.selection = [];
+
+                //Select all storage
+                for(let i of this.currentContent.storages) {
+                    this.selection.push(i);
+                }
+
+                //Select all resources
+                for(let i of this.currentContent.resources) {
+                    this.selection.push(i);
+                }
+
+                this.update();
+            },
+            //Deselect all
+            deselectAll(e) {
+                if(e) e.preventDefault();
+                //Deselect all
+                this.selection = [];
+                this.update();
+            },
+            //Turn off action bar elements
+            turnOffActionBarElements(e) {
+                if(e) e.preventDefault();
+                this.keepSelectMode = false;
+                this.copy = false;
+                this.move = false;
+                this.copySelection = [];
+                this.moveSelection = [];
+                this.update();
+            },
+            //Turn off intermediate displays
+            turnOffDisplays(e) {
+                if(e) e.preventDefault();
+                this.rename = false;
+                this.newResource = false;
+                this.newStorage = false;
+                this.seeProperties = false;
+                this.addMinimum = false;
+                this.editQuantity = false;
+                this.update();
+            },
+            //Toggle keep select mode
+            keepSelect(e) {
+                e.preventDefault();
+                //Toggle
+                let val = !this.keepSelectMode;
+                //Turn off others actions
+                this.turnOffActionBarElements();
+                //Set the value
+                this.keepSelectMode = val;
+                this.update();
+            },
+            //Show option menu
+            showOptionMenu(e) {
+                e.preventDefault();
+                //Get menu
+                let optionMenu = this.$("#option-menu");
+                if(optionMenu) {
+                    //Show
+                    optionMenu.style.display = "block";
+                    //Get mouse click position in screen
+                    let x = Math.min(window.innerWidth - optionMenu.offsetWidth, e.clientX);
+                    let y = window.scrollY + Math.min(window.innerHeight - optionMenu.offsetHeight, e.clientY);
+
+                    //Set menu position
+                    optionMenu.style.top = y + "px";
+                    optionMenu.style.left = x + "px";
+                }
+                //Says to close option menu on window event
+                this.closeOptionMenu = true;
+            },
+            //Hide option menu
+            hideOptionMenu(e) {
+                if(e) e.preventDefault();
+                //Get menu
+                let optionMenu = this.$("#option-menu");
+                if(optionMenu) {
+                    //Hide
+                    optionMenu.style.display = "none";
+                }
+                //Says to close option menu on window event
+                this.closeOptionMenu = true;
+            },
+            //Mouse enters option menu
+            onEnterOptionMenu(e) {
+                e.preventDefault();
+                //Says to not close option menu on window event
+                this.closeOptionMenu = false;
+            },
+            //Mouse leaves option menu
+            onLeaveOptionMenu(e) {
+                e.preventDefault();
+                //Says to close option menu on window event
+                this.closeOptionMenu = true;
+            },
+            //Window click
+            onWindowClick(e) {
+                if(this.closeOptionMenu) {
+                    //Close option menu if mouse out of it
+                    this.hideOptionMenu();
+                    this.closeOptionMenu = false;
+                }
+
+                this.update();
+            },
+            //Window scroll
+            onWindowScroll(e) {
+                if(this.closeOptionMenu) {
+                    //Close option menu if mouse out of it
+                    this.hideOptionMenu();
+                    this.closeOptionMenu = false;
+                }
+
+                this.update();
+            },
+            //Show add storage display
+            onAddStorage(e) {
+                e.preventDefault();
+                //Hide others displays
+                this.turnOffDisplays();
+                this.newStorage = true;
+                this.update();
+            },
+            //Show add resource display
+            onAddResource(e) {
+                e.preventDefault();
+                //Hide others displays
+                this.turnOffDisplays();
+                this.newResource = true;
+                this.update();
+            },
+            //Open storage
+            onOpen(e) {
+                e.preventDefault();
+                //Show storage content
+                this.changeStorage(this.optionMenuTarget);
+            },
+            //Show rename display
+            onRename(e) {
+                e.preventDefault();
+                //Hide others displays
+                this.turnOffDisplays();
+                this.rename = true;
+                this.update();
+            },
+            //Show properties display for option menu target
+            onSeeProperties(e) {
+                e.preventDefault();
+                //Hide others displays
+                this.turnOffDisplays();
+                //Turn off action bar elements
+                this.turnOffActionBarElements();
+                //Deselect all
+                this.selection = [];
+                this.seeProperties = true;
+                this.update();
+            },
+            //Show properties display for current storage
+            onSeeCurrentProperties(e) {
+                e.preventDefault();
+                //Hide others displays
+                this.turnOffDisplays();
+                //Turn off action bar elements
+                this.turnOffActionBarElements();
+                //Deselect all
+                this.selection = [];
+                this.seeProperties = true;
+                //Set option menu target information
+                this.optionMenuType = CONSTANTS.STORAGE;
+                this.optionMenuTarget = this.currentContent;
+                this.update();
+            },
+            //Show add minimum display
+            onAddMinimum(e) {
+                if(e) e.preventDefault();
+                //Toggle
+                this.addMinimum = !this.addMinimum;
+                this.update();
+                //Toggle add minimum display
+                $("#list-minimum-collapse").collapse('toggle');
+                $("#add-minimum-collapse").collapse('toggle');
+            },
+            //Show delete minimum modal
+            onDeleteMinimum(minimum) {
+                return (e)=> {
+                    e.preventDefault();
+                    //Set minimum to delete
+                    this.deletedMinimum = minimum;
+                    this.update();
+                    //Show modal
+                    $("#delete-minimum-modal").modal('show');
+                };
+            },
+            //User moves elements
+            onMove(e) {
+                e.preventDefault();
+                //Toggle
+                let val = !this.move;
+                //Turn off action bar elements
+                this.turnOffActionBarElements();
+                //Set value
+                this.move = val;
+
+                if(this.move) {
+                    //Set move selection if moving
+                    this.moveSelection = Array.from(this.selection);
+                }
+                this.update();
+            },
+            //User drops moved elements
+            onMoveDrop(e) {
+                e.preventDefault();
+                //Turn off move
+                this.move = false;
+                //Move elements
+                this.moveElements(this.currentContent,this.moveSelection);
+            },
+            //User copies elements
+            onCopy(e) {
+                e.preventDefault();
+                //Toggle
+                let val = !this.copy;
+                //Turn off action bar elements
+                this.turnOffActionBarElements();
+                //Set value
+                this.copy = val;
+
+                if(this.copy) {
+                    //Set move selection if copying
+                    this.copySelection = Array.from(this.selection);
+                }
+                this.update();
+            },
+            //User pastes copied elements
+            onPaste(e) {
+                e.preventDefault();
+                //Turn off copy
+                this.copy = false;
+                //Copy elements
+                this.copyElements(this.currentContent,this.copySelection);
+                this.update();
+            },
+            //Show edit quantity display
+            onEditQuantity(e) {
+                if(e) e.preventDefault();
+                //Toggle
+                this.editQuantity = !this.editQuantity;
+                this.update();
+                //Toggle display
+                $("#collapse-edit-quantity").collapse('toggle');
+            },
+            //Generate PDF with jsPDF
+            onGeneratePDF(e) {
+                e.preventDefault();
+                //New PDF
+                let doc = new jsPDF();
+
+                //Current Storage
+                //Title
+                doc.text(10, 10,'Storage');
+                //Table
+                doc.autoTable({
+                    head: [
+                        [
+                            'Name'
+                        ]
+                    ],
+                    body: [
+                        [
+                            this.optionMenuTarget['storage_name']
+                        ]
+                    ]
+                });
+
+                //Children resources
+                //New page
+                doc.addPage();
+                //Title
+                doc.text(10,10,'Resources');
+                let body = [];
+                for(let i of this.optionMenuTarget.resources) {
+                        body.push(
+                                [
+                                    i['resource_name'],
+                                    i['resource_type'],
+                                    i.qty,
+                                    i.minimums.minimum || 'NOT SET'
+                                ]
+                            );
+                }
+                //Table
+                doc.autoTable({
+                    head: [
+                        [
+                            'Name',
+                            'Type',
+                            'Quantity',
+                            'Minimum'
+                        ]
+                    ],
+                    body: body
+                });
+
+                //Storage minimums
+                //New page
+                doc.addPage();
+                //Title
+                doc.text(10,10,'Storage minimums');
+                let bodyMin = [];
+                for(let i of this.optionMenuTarget.minimums) {
+                    bodyMin.push(
+                        [
+                            i['resource_name'] || 'NOT SET',
+                            i['resource_type'] || 'NOT SET',
+                            i.count || '0',
+                            i.minimum
+                        ]
+                    );
+                }
+                //Table
+                doc.autoTable({
+                    head: [
+                        [
+                            'Apply on name',
+                            'Apply on type',
+                            'Count',
+                            'Minimum'
+                        ]
+                    ],
+                    body: bodyMin
+                });
+
+                //Download PDF
+                doc.save(this.optionMenuTarget['storage_name'] + '_' + new Date().toLocaleDateString().replace(' ','_') + '.pdf');
+            },
+            //Close intermediate displays
+            backToStorageDisplay(e) {
+                e.preventDefault();
+                //Close displays
+                this.turnOffDisplays();
+                //Refresh current storage
+                this.changeStorage(this.currentContent);
+            },
+            //Submit edit quantity
+            onSubmitEditQuantity(e) {
+                e.preventDefault();
+                //Get fields
+                let quantityFields = this.$('quantityfields');
+
+                //Check fields
+                if(quantityFields.check()) {
+                    //Change quantity
+                    this.changeQuantity(quantityFields.getValues());
+                }
+            },
+            //Submit new storage
+            onSubmitNewStorage(e) {
+                e.preventDefault();
+                //Get fields
+                let storageFields = this.$('storagefields');
+
+                //Check fields
+                if(storageFields.check()) {
+                    //Add storage
+                    this.addStorage(storageFields.getValues());
+                }
+            },
+            //Submit new resource
+            onSubmitNewResource(e) {
+                e.preventDefault();
+                //Get fields
+                let resourceFields = this.$('resourcefields');
+
+                //Check fields
+                if(resourceFields.check()) {
+                    //Add resource
+                    this.addResource(resourceFields.getValues());
+                }
+
+            },
+            //Submit rename
+            onSubmitRename(e) {
+                e.preventDefault();
+                //Get fields
+                let renameFields = this.$('renamefields');
+
+                //Check fields
+                if(renameFields.check()) {
+                    //Rename
+                    this.renameElement(renameFields.getValues());
+                }
+            },
+            //Submit new minimum
+            onAddMinimumSubmit(e) {
+                e.preventDefault();
+                //Get fields
+                let minimumFields = this.optionMenuType === CONSTANTS.STORAGE ? this.$('storageminimumfields') : this.$('resourceminimumfields');
+
+                //Check fields
+                if(minimumFields.check()) {
+                    this.optionMenuType === CONSTANTS.STORAGE ?
+                        //Add minimum
+                        this.addStorageMinimum(minimumFields.getValues()) : this.addResourceMinimum(minimumFields.getValues());
+                }
+            },
+            //Add storage
+            async addStorage(storageFields) {
+                //Requesting
+                let res = await makeServiceAjax().createStorage(
+                    this.currentContent['storage_id'],
+                    storageFields.name
+                );
+
+                if(res.worked) {
+                    //If worked
+                    this.newStorageError = "";
+                    this.newStorage = false;
+                    this.changeStorage(this.currentContent);
+                } else {
+                    //If didn't work
+                    this.newStorageError = res.content;
+                    this.update();
+                }
+            },
+            async addResource(resourceFields) {
+                //Requesting
+                let res = await makeServiceAjax().createResource(
+                    this.currentContent['storage_id'],
+                    resourceFields.name,
+                    resourceFields.type
+                );
+
+                if(res.worked) {
+                    //If worked
+                    this.newResourceError = "";
+                    this.newResource = false;
+                    this.changeStorage(this.currentContent);
+                } else {
+                    //If didn't work
+                    this.newResourceError = res.content;
+                    this.update();
+                }
+            },
+            async changeQuantity(quantityFields) {
+                //Requesting
+                let res = await makeServiceAjax().editQty(
+                    this.optionMenuTarget['resource_id'],
+                    quantityFields.quantity
+                );
+
+                if(res.worked) {
+                    //If worked
+                    this.editQuantityError = "";
+                    this.onEditQuantity();
+                    //Refresh element
+                    this.getElementProperties(this.optionMenuTarget);
+                    this.optionMenuType = CONSTANTS.RESOURCE;
+                    //Keep properties open
+                    this.seeProperties = true;
+                    this.update();
+                } else {
+                    //If didn't work
+                    this.editQuantityError = res.content;
+                    this.update();
+                }
+            },
+            async addStorageMinimum(minimumFields) {
+                //Requesting
+                let res = await makeServiceAjax().createStorageMinimum(
+                    this.optionMenuTarget['storage_id'],
+                    minimumFields.minimum,
+                    minimumFields.name && minimumFields.name.length > 0 ? minimumFields.name : null,
+                    minimumFields.type && minimumFields.type.length > 0 ? minimumFields.type : null
+                );
+
+                if(res.worked) {
+                    //If worked
+                    this.addMinimumError = "";
+                    this.onAddMinimum();
+                    //Refresh element
+                    this.getElementProperties(this.optionMenuTarget);
+                    this.optionMenuType = CONSTANTS.STORAGE;
+                    //Keep properties open
+                    this.seeProperties = true;
+                    this.update();
+                } else {
+                    //If didn't work
+                    this.addMinimumError = res.content;
+                    this.update();
+                }
+            },
+            async addResourceMinimum(minimumFields) {
+                //Requesting
+                let res = await makeServiceAjax().createResourceMinimum(
+                    this.optionMenuTarget['resource_id'],
+                    minimumFields.minimum
+                );
+
+                if(res.worked) {
+                    //If worked
+                    this.addMinimumError = "";
+                    this.onAddMinimum();
+                    //Refresh element
+                    this.getElementProperties(this.optionMenuTarget);
+                    this.optionMenuType = CONSTANTS.RESOURCE;
+                    //Keep properties open
+                    this.seeProperties = true;
+                    this.update();
+                } else {
+                    //If didn't work
+                    this.addMinimumError = res.content;
+                    this.update();
+                }
+            },
+            async deleteStorageMinimum(e) {
+                e.preventDefault();
+                //Requesting
+                let res = await makeServiceAjax().deleteStorageMinimum(
+                    this.optionMenuTarget['storage_id'],
+                    this.deletedMinimum['resource_name'] && this.deletedMinimum['resource_name'].length > 0 ? this.deletedMinimum['resource_name'] : null,
+                    this.deletedMinimum['resource_type'] && this.deletedMinimum['resource_type'].length > 0 ? this.deletedMinimum['resource_type'] : null
+                );
+
+                if(res.worked) {
+                    //If worked
+                    this.deleteMinimumError = "";
+                    $("#delete-minimum-modal").modal('hide');
+                    //Refresh element
+                    await this.getElementProperties(this.optionMenuTarget);
+                    this.optionMenuType = CONSTANTS.STORAGE;
+                    this.deletedMinimum = null;
+                    //Keep properties open
+                    this.seeProperties = true;
+                    this.update();
+                } else {
+                    //If didn't work
+                    this.deleteMinimumError = res.content;
+                    this.update();
+                }
+            },
+            async deleteResourceMinimum(e) {
+                e.preventDefault();
+                //Requesting
+                let res = await makeServiceAjax().deleteResourceMinimum(this.optionMenuTarget['resource_id']);
+
+                if(res.worked) {
+                    //If worked
+                    this.deleteMinimumError = "";
+                    $("#delete-minimum-modal").modal('hide');
+                    //Refresh element
+                    await this.getElementProperties(this.optionMenuTarget);
+                    this.optionMenuType = CONSTANTS.RESOURCE;
+                    this.deletedMinimum = null;
+                    //Keep properties open
+                    this.seeProperties = true;
+                    this.update();
+                } else {
+                    //If didn't work
+                    this.deleteMinimumError = res.content;
+                    this.update();
+                }
+            },
+            async renameElement(renameFields) {
+                let res = {
+                    worked: false,
+                    content: "undefined element to rename"
+                };
+
+                //Requesting
+                if(this.optionMenuType === CONSTANTS.STORAGE) {
+                    res = await makeServiceAjax().renameStorage(
+                        this.optionMenuTarget['storage_id'],
+                        renameFields.name
+                    );
+                } else if(this.optionMenuType === CONSTANTS.RESOURCE) {
+                    res = await makeServiceAjax().renameResource(
+                        this.optionMenuTarget['resource_id'],
+                        renameFields.name
+                    );
+                }
+
+                if(res.worked) {
+                    //If worked
+                    this.renameError = "";
+                    this.rename = false;
+                    this.optionMenuTarget = null;
+                    this.changeStorage(this.currentContent);
+                } else {
+                    //If didn't work
+                    this.renameError = res.content;
+                    this.update();
+                }
+            },
+            async deleteElements(e) {
+                e.preventDefault();
+                this.deleteErrors = [];
+
+                //Each selected element
+                for(let i of this.selection) {
+                    let res = {
+                        worked: false,
+                        content: "Undefined element to delete"
+                    };
+
+                    //Requesting
+                    if(i['storage_id']) {
+                        res = await makeServiceAjax().deleteStorage(i['storage_id']);
+                    } else if(i['resource_id']) {
+                        res = await makeServiceAjax().deleteResource(i['resource_id']);
+                    }
+
+                    if(!res.worked) {
+                        //If didn't work
+                        this.deleteErrors.push({
+                            name: i['storage_name'] || i['resource_name'] || "Unnamed",
+                            error: res.content
+                        });
+                        this.update();
+                    }
+                }
+
+                if(this.moveErrors.length === 0) {
+                    //If worked
+                    this.changeStorage(this.currentContent);
+                    $('#delete-element-modal').modal('hide');
+                }
+            },
+            async moveElements(destinationElement,selection) {
+                this.moveErrors = [];
+
+                if(destinationElement['storage_id']) {
+                    for (let i of selection) {
+                        let res = {
+                            worked: false,
+                            content: "Undefined element to move"
+                        };
+
+                        if (destinationElement.family === i.family || (i['storage_id'] && CONSTANTS.isChild(i.family, destinationElement.family))) {
+                            res.content = "Can't move an element into itself or into its children";
+                        } else {
+                            //Requesting
+                            if (i['storage_id']) {
+                                res = await makeServiceAjax().moveStorage(i['storage_id'], destinationElement['storage_id']);
+                            } else if (i['resource_id']) {
+                                res = await makeServiceAjax().moveResource(i['resource_id'], destinationElement['storage_id']);
+                            }
+                        }
+
+                        if (!res.worked) {
+                            //If didn't work
+                            this.moveErrors.push({
+                                name: i['storage_name'] || i['resource_name'] || "Unnamed",
+                                error: res.content
+                            });
+                            this.update();
+                        }
+                    }
+
+                    if(this.moveErrors.length === 0)
+                        //If worked
+                        this.changeStorage(destinationElement);
+                } else {
+                    //If didn't work
+                    this.moveErrors.push({
+                        name: "elements",
+                        error: "Can't move out of a storage"
+                    });
+                    this.update();
+                }
+            },
+            async copyElements(destinationElement,selection) {
+                this.copyErrors = [];
+
+                if(destinationElement['storage_id']) {
+                    for (let i of selection) {
+                        let res = {
+                            worked: false,
+                            content: "Undefined element to copy"
+                        };
+
+                        //Requesting
+                        if (i['storage_id']) {
+                            res = await makeServiceAjax().createStorage(
+                                this.currentContent['storage_id'],
+                                (i['storage_name'] + ' - copied')
+                            );
+                        } else if (i['resource_id']) {
+                            res = await makeServiceAjax().createResource(
+                                this.currentContent['storage_id'],
+                                (i['resource_name'] + ' - copied'),
+                                i['resource_type']
+                            );
+                        }
+
+                        if (!res.worked) {
+                            //If didn't work
+                            this.copyErrors.push({
+                                name: i['storage_name'] || i['resource_name'] || "Unnamed",
+                                error: res.content
+                            });
+                            this.update();
+                        }
+                    }
+
+                    if(this.copyErrors.length === 0)
+                        //If worked
+                        this.changeStorage(destinationElement);
+                } else {
+                    //If didn't work
+                    this.moveErrors.push({
+                        name: "elements",
+                        error: "Can't copy out of a storage"
+                    });
+                    this.update();
+                }
+            }
+        }
+    </script>
+</storagepage>
