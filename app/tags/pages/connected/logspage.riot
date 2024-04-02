@@ -210,10 +210,9 @@
                                 i.toggle = j.toggle;
                         }
 
-                        //Convert date to JavaScript object from (JJ-MM-YYYY HH-MM-SS)
+                        //Convert date to JavaScript object
                         if((typeof i.date) === "string") {
-                            let values = i.date.replace(" ", "-").split(/-/);
-                            i.date = new Date(values[2], values[1], values[0], values[3], values[4], values[5]);
+                            i.date = new Date(i.date);
                         }
                     }
 
