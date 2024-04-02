@@ -39,11 +39,11 @@
 
     for ($i = 1; $i < $count; $i++)
         $regexp = $regexp.')?';
-    $regexp = '~^'.$regexp.'$~';
+    $regexp = '^'.$regexp.'$';
 
     //gets the storages
     $query = $link->prepare("select storage_id, storage_name, family from storage where root_id=? and family regexp ? order by family");
-    $query->execute(array($storage['root_id'],$regexp));
+    $query->execute(array($storage['root_id'], $regexp));
     $breadCrumb = $query->fetchAll(PDO::FETCH_ASSOC);
 
     //keeps only storages the client is allowed to see

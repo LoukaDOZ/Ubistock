@@ -25,7 +25,7 @@
     $link = open_db();
 
     //creates the storage
-    $query = $link->prepare("insert into storage('storage_name', 'root_id', 'storage_id', 'company_id', 'family') values(?,?,?,?,?);");
+    $query = $link->prepare("insert into storage(storage_name, root_id, storage_id, company_id, family) values(?,?,?,?,?);");
     $query->execute(array($_POST['storage_name'], $parent['root_id'], $storage_id, $parent['company_id'], $parent['family'].'.'.strval($max)));
 
     //checks if it failed

@@ -146,12 +146,33 @@
                 if(res.worked) {
                     //If worked
                     this.addError = "";
-                    //Update parent
-                    if(this.props.refresh) this.props.refresh();
-                    //Hide add group form
-                    this.addGroup = false;
-                    $("#add-group-collapse").collapse('hide');
-                    $("#list-group-collapse").collapse('show');
+
+                    if(groupValues) {
+                        //Each storage to bind to the group
+                        for (let i of groupValues.storage) {
+                            //Requesting
+                            let res2 = await makeServiceAjax().toggleStorageGroup(
+                                i['storage_id'],
+                                res.content['company_group_id']);
+
+                            if (res2.worked) {
+                                //If worked
+                                this.addError = "";
+                                
+                                //Update parent
+                                if(this.props.refresh) this.props.refresh();
+                                //Hide add group form
+                                this.addGroup = false;
+                                $("#add-group-collapse").collapse('hide');
+                                $("#list-group-collapse").collapse('show');
+                            } else {
+                                //If didn't work
+                                this.addError = res2.content;
+                                this.update();
+                                return;
+                            }
+                        }
+                    }
                 } else {
                     //If don't worked
                     this.addError = res.content;

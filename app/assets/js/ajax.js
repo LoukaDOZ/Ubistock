@@ -1,14 +1,12 @@
 function makeServiceAjax() {
 
-    let baseUrl = "http://php/Ubistock/api/";
-    //let baseUrl = "http://localhost/Ubistock/api/";
+    let baseUrl = "http://localhost:8082/";
 
     async function getUrl(url, postArgs, format) {
         return new Promise((resolve, reject) => {
             let xhr = new XMLHttpRequest();
             xhr.open('POST', url, true);
             xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-            xhr.setRequestHeader("Access-Control-Allow-Origin", "Allow");
 
             xhr.onload = function () {
                 if (xhr.status === 200)

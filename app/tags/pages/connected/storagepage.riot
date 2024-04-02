@@ -712,6 +712,12 @@
                         //If worked
                         //Convert to array and sort storage name by alphabetic order
                         this.currentContent.storages = Object.values(this.currentContent.storages).sort(function (a, b) {
+                            if(a['family'].localeCompare("0") === 0)
+                                return -1
+                            
+                            if(b['family'].localeCompare("0") === 0)
+                                return 1
+                    
                             return a['storage_name'].localeCompare(b['storage_name']);
                         });
 
@@ -787,7 +793,7 @@
                             //Get properties
                             await this.getElementProperties(i);
 
-                            if(!element['resource_missing'] && parseInt(i.qty) < parseInt(i.minimums.minimum)) {
+                            if(parseInt(i.qty) < parseInt(i.minimums.minimum)) {
                                 //Indicate that at least one resource have a not respected minimum
                                 i['resource_missing'] = true;
                                 element['resource_missing'] = true;
@@ -1522,7 +1528,7 @@
                     }
                 }
 
-                if(this.moveErrors.length === 0) {
+                if(this.deleteErrors.length === 0) {
                     //If worked
                     this.changeStorage(this.currentContent);
                     $('#delete-element-modal').modal('hide');

@@ -22,8 +22,8 @@
     if (($_POST['accreditation'] ?? LOWEST_RANK) <= $boss['accreditation_level']) return_error(NOT_ENOUGH_PRIVILEGE);
 
     //creates the user
-    $query = $link->prepare("insert into company_user('company_user_id', 'company_user_name', 'company_user_surname',
-                         'password_hash', 'company_id', 'accreditation_level', 'email') values(?, ?, ?, ?, ?, ?, ?);");
+    $query = $link->prepare("insert into company_user(company_user_id, company_user_name, company_user_surname,
+                         password_hash, company_id, accreditation_level, email) values(?, ?, ?, ?, ?, ?, ?);");
 
     $query->execute(array($company_user_id, $_POST['name'], $_POST['surname'], password_hash($_POST['password'], PASSWORD_DEFAULT),
         $boss['company_id'], $_POST['accreditation'] ?? LOWEST_RANK, $_POST['email']));

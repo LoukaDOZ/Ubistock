@@ -36,8 +36,8 @@
             <!-- Each parent storage -->
             <li class="breadcrumb-item py-2" each="{ breadcrumb in props.breadcrumb }">
                 <!-- If not current -->
-                <a if="{ !props.current['storage_id'] || props.current['storage_id'] !== breadcrumb['storage_id'] }" href="" class="text-decoration-none }"
-                   onclick="{ props.changestorage(breadcrumb['storage_id']) }">
+                <a if="{ !props.current['storage_id'] || props.current['storage_id'] !== breadcrumb['storage_id'] }" href="" class="text-decoration-none"
+                   onclick="{ props.changestorage(breadcrumb) }">
                     { breadcrumb['storage_name'] }
                 </a>
                 <!-- If current -->

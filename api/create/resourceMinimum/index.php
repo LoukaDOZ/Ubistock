@@ -18,7 +18,7 @@
     perms_storage_user($_POST['company_user_id'], $resource['storage_id'], PERMS['create_resource_minimum']);
 
     //creates the minimum
-    $query = $link->prepare("replace into resource_minimum('resource_id', 'minimum') 
+    $query = $link->prepare("replace into resource_minimum(resource_id, minimum) 
                                         values (?, ?)");
 
     $query->execute(array($_POST['resource_id'], $_POST['minimum']));

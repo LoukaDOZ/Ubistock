@@ -46,7 +46,7 @@
 
     } else {//else adds him
 
-        $query = $link->prepare("insert into company_group_member('company_group_id', 'company_user_id') values(?,?);");
+        $query = $link->prepare("insert into company_group_member(company_group_id, company_user_id) values(?,?);");
         $query->execute(array($_POST['group_id'], $_POST['user_id']));
 
         $query = $link->prepare("select * from company_group natural join company_group_member natural join company_user where company_user_id=? and company_group_id=?");

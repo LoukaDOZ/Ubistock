@@ -41,6 +41,7 @@
         "TOGGLE_USER_GROUP" => 5,
         "CREATE_GROUP" => 4,
         "CREATE_STORAGE" => 5,
+        "DELETE_STORAGE" => 4,
         "DELETE_GROUP" => 4,
         "CREATE_RESOURCE" => 6,
         "DELETE_RESOURCE" => 6,

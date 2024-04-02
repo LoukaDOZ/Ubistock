@@ -39,7 +39,7 @@
     } else {//else, lets add it
 
         //perform insertion
-        $query = $link -> prepare("insert into company_group_storage('company_group_id', 'storage_id') values(?,?);");
+        $query = $link -> prepare("insert into company_group_storage(company_group_id, storage_id) values(?,?);");
         $query -> execute(array($_POST['group_id'], $_POST['storage_id']));
 
         //checks if it worked

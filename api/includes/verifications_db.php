@@ -6,7 +6,7 @@ function auth_user()
 
     $link = open_db();
 
-    $query = $link->prepare("select * from token where company_user_id=? and token_id=? and CAST((strftime('%s','now') - token_creation) as INTEGER) < ?;");
+    $query = $link->prepare("select * from token where company_user_id=? and token_id=? and UNIX_TIMESTAMP(DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s')) - UNIX_TIMESTAMP(token_creation) < ?;");
     $query->execute(array($_POST['company_user_id'], $_POST['token_id'], TOKEN_VALIDITY));
 
     if (!($result = $query->fetch())) return_error(SESSION_EXPIRED);
@@ -22,7 +22,6 @@ function perms_storage_user($user_id, $storage_id, $perm) {
     $query->execute(array($perm, $user_id));
 
     if (!($result = $query->fetch())) return_error(NOT_ENOUGH_PRIVILEGE);
-
 
 
     //get info from storage
@@ -46,7 +45,6 @@ function perms_storage_user($user_id, $storage_id, $perm) {
     $query = $link->prepare("select family from company_group_member natural join company_group_storage natural join storage
                                         where company_user_id=?;");
     $query->execute(array($user_id));
-
     foreach ($query->fetchAll(PDO::FETCH_ASSOC) as $row){
         if (substr(  $storage['family'], 0, strlen($row['family'])) === $row['family']) return true;
     }

@@ -15,7 +15,7 @@
     $company_id = get_company_of($_POST['company_user_id']);
 
     //creates the group
-    $query = $link -> prepare("insert into company_group('company_group_id', 'company_group_name', 'company_id') values(?,?,?);");
+    $query = $link -> prepare("insert into company_group(company_group_id, company_group_name, company_id) values(?,?,?);");
     $query -> execute(array($group_id, $_POST['group_name'], $company_id));
 
     //checks if insertion was successful and the real name of the group

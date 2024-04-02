@@ -14,7 +14,7 @@
     $link = open_db();
 
     //creates the resource
-    $query = $link->prepare("insert into resource('resource_id', 'resource_name', 'resource_type', 'storage_id') values(?,?,?,?);");
+    $query = $link->prepare("insert into resource(resource_id, resource_name, resource_type, storage_id) values(?,?,?,?);");
     $query->execute(array($resource_id, $_POST['resource_name'], $_POST['resource_type'], $_POST['storage_id']));
 
     $query = $link->prepare("select * from resource where resource_id=?;");

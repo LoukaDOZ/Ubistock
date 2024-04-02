@@ -28,7 +28,7 @@
     $query->execute($args);
 
     //creates the minimum
-    $query = $link->prepare("insert into storage_minimum('storage_id', 'resource_type', 'resource_name', 'minimum') 
+    $query = $link->prepare("insert into storage_minimum(storage_id, resource_type, resource_name, minimum) 
                                         values (?, ?, ?, ?) ");
 
     $query->execute(array($_POST['storage_id'], $_POST['resource_type'] ?? null, $_POST['resource_name'] ?? null, $_POST['minimum']));

@@ -7,7 +7,7 @@
         <div class="d-flex justify-content-center align-items-center">
             <div class="m-0 p-0 position-relative w-25 h-25">
                 <!-- Image from type -->
-                <img src="../assets/images/{ CONSTANTS.resourceTypeToImageName(props.resource['resource_type']) }" class="w-100" alt="resource" draggable="false">
+                <img src="assets/images/{ CONSTANTS.resourceTypeToImageName(props.resource['resource_type']) }" class="w-100" alt="resource" draggable="false">
                 <!-- Resource minimum not respected -->
                 <span if="{ props.resource['resource_missing'] && props.by <= CONSTANTS.COLLABORATOR }"
                       class="position-absolute badge badge-pill badge-warning border border-dark" style="bottom: 0; right: -0.75em;">

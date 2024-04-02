@@ -145,10 +145,22 @@
                     this.currentContent.storages = Object.values(this.currentContent.storages).sort(function (a, b) {
                         return a['storage_name'].localeCompare(b['storage_name']);
                     });
+
+                    // if at root, only keep principal storage
+                    if(!storage) {
+                        for(let i of this.currentContent.storages) {
+                            if(i['family'].localeCompare("0") === 0) {
+                                this.currentContent.storages = [i];
+                                break;
+                            }
+                        }
+                    }
+
                     //Convert to array and sort resource name by alphabetic order
                     this.currentContent.resources = Object.values(this.currentContent.resources).sort(function (a, b) {
                         return a['resource_name'].localeCompare(b['resource_name']);
                     });
+
                     //Convert breadcrumbs to array
                     this.currentContent.breadcrumb = Object.values(this.currentContent.breadcrumb);
 

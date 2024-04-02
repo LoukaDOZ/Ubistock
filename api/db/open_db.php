@@ -13,6 +13,8 @@
             }
 
             if ($link === null) return_error(DATABASE_CONNECTION);
+
+            $link->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
             return $link;
 
         } catch (PDOException $e){

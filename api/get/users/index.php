@@ -11,8 +11,8 @@
     $link = open_db();
 
     $query = $link -> prepare("select company_user_id, company_user_surname, company_user_name, email, accreditation_level
-                                            from company_user where company_id=? limit ? offset ?");
-    $query->execute(array($id, $_POST['limit'], $_POST['offset']));
+                                            from company_user where company_id=?");
+    $query->execute(array($id));
 
     if (!($result = $query->fetchAll(PDO::FETCH_ASSOC))) return_error(DATABASE_CONNECTION);
 

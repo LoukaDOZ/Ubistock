@@ -23,10 +23,10 @@
 
         $id = generateRandomKey("company_log");
 
-        $query = $link->prepare("insert into company_log('action', 'company_user_id', 'target_id', 'target_name', 'quantity', 'date', 'reason', 'priority', 'company_log_id')
+        $query = $link->prepare("insert into company_log(action, company_user_id, target_id, target_name, quantity, date, reason, priority, company_log_id)
             values(?, ?, ?, ?, ?, ?, ?, ?, ?);");
 
-        $query->execute(array($action, $_POST['company_user_id'], $target_id, $target_name, $qty, date("d-m-Y H-i-s"), $_POST['reason'] ?? '', $priority, $id));
+        $query->execute(array($action, $_POST['company_user_id'], $target_id, $target_name, $qty, date("Y-m-d H:i:s"), $_POST['reason'] ?? '', $priority, $id));
     }
 
     function return_error($error_const){
@@ -79,7 +79,7 @@
 
         $query = $link->prepare("select family from company_group_storage 
                                             natural join company_group_member natural join storage 
-                                            where company_user_id=? and ? regexp '~^' || family || '(\..+)*$~' ");
+                                            where company_user_id=? and ? regexp '^' || family || '(\..+)*$'");
         $query->execute(array($user_id, $storage_fam));
 
         return $query->fetch(PDO::FETCH_ASSOC);
@@ -107,7 +107,7 @@
          if (!($result = $query->fetch(PDO::FETCH_ASSOC))) return_error(NO_SUCH_RESOURCE);
 
          $query = $link->prepare("select storage_id, storage_name, family from storage where root_id=? and family REGEXP ?");
-         $query->execute(array($result['root_id'], '/^'.$result['family'].'\.[0-9]+$/ui'));
+         $query->execute(array($result['root_id'], '^'.$result['family'].'\.[0-9]+$'));
 
          return $query->fetchAll(PDO::FETCH_ASSOC);
      }

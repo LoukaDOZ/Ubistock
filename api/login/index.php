@@ -18,9 +18,9 @@
     if (!($result = $query->fetch(PDO::FETCH_ASSOC))) return_error(NO_SUCH_USER);
     if (!password_verify($_POST['password'], $result['password_hash'])) return_error(INVALID_PASSWORD);
 
-    $query = $link->prepare("delete from token where company_user_id=? or Cast((strftime('%s','now') - token_creation) as INTEGER) > ?");
+    $query = $link->prepare("delete from token where company_user_id=? or UNIX_TIMESTAMP(DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s')) - UNIX_TIMESTAMP(token_creation) > ?");
     $query -> execute(array($result['company_user_id'], TOKEN_VALIDITY));
-    $query = $link->prepare("insert into token('company_user_id','token_id','token_creation') values(?,?,strftime ('%s','now'))");
+    $query = $link->prepare("insert into token(company_user_id,token_id,token_creation) values(?,?,DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s'))");
     $query -> execute(array($result['company_user_id'], generate_key().generate_key()));
 
     $query = $link->prepare("select * from company_user natural join token where company_user_id=?");
